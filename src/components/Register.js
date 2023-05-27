@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, registerWithEmailAndPassword, signInWithGoogle } from "../services/firebase";
+import { auth, registerWithEmailAndPassword } from "../services/firebase";
 import "./Register.css";
 
 function Register() {
@@ -26,6 +26,8 @@ function Register() {
   const handleRegister = () => {
     if (!name) {
       alert("Please enter a name");
+    } else if (!email.endsWith("@etu.edu.tr")) {
+      alert("Only email addresses with the domain 'etu.edu.tr' are allowed.");
     } else {
       registerWithEmailAndPassword(name, email, password);
     }
@@ -68,12 +70,7 @@ function Register() {
         <button className="register__btn" onClick={handleRegister}>
           Register
         </button>
-        <button
-          className="register__btn register__google"
-          onClick={signInWithGoogle}
-        >
-          Register with Google
-        </button>
+        
         <div>
           Already have an account? <Link to="/">Login</Link> now.
         </div>

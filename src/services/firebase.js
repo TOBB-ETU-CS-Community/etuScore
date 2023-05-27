@@ -2,11 +2,11 @@ import { initializeApp } from "firebase/app";
 import {
   GoogleAuthProvider,
   getAuth,
-  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
+  sendEmailVerification,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -32,33 +32,23 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-const signInWithGoogle = async () => {
-  try {
-    const res = await signInWithPopup(auth, googleProvider);
-    const user = res.user;
-
-    const q = query(collection(db, "users"), where("uid", "==", user.uid));
-    const querySnapshot = await getDocs(q);
-
-
-    if (querySnapshot.empty) {
-      await addDoc(collection(db, "users"), {
-        uid: user.uid,
-        name: user.displayName,
-        authProvider: "google",
-        email: user.email,
-      });
-      
-    }
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-};
-
 const logInWithEmailAndPassword = async (email, password) => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    const res = await signInWithEmailAndPassword(auth, email, password);
+    const user = res.user;
+
+    // Check if the user's email is verified
+    if (!user.emailVerified) {
+      // Sign out the user
+      signOut(auth);
+      throw new Error(
+        "Email not verified. Please check your email to verify your account."
+      );
+      
+    }
+
+    // Proceed with login
+    // ...
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -76,6 +66,15 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       authProvider: "local",
       email,
     });
+
+    // Send verification email
+    await sendEmailVerification(auth.currentUser);
+
+    alert(
+      "Registration successful! Please check your email to verify your account."
+    );
+    // Sign out the user
+    signOut(auth);
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -99,7 +98,6 @@ const logout = () => {
 export {
   auth,
   db,
-  signInWithGoogle,
   logInWithEmailAndPassword,
   registerWithEmailAndPassword,
   sendPasswordReset,
