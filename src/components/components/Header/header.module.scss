@@ -1,0 +1,30 @@
+header {
+  display: flex;
+  background-color: #fdbe11;
+  justify-content: flex-start;
+  align-items: center;
+
+  img {
+    width: 3rem;
+    height: auto;
+    margin: 1rem;
+  }
+  //logout button at the end
+  button {
+    margin-left: auto;
+    margin-right: 1rem;
+    background-color: #fdbe11;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover {
+      color: #fdbe11;
+      background-color: #fff;
+    }
+  }
+
+}
+
+
+
