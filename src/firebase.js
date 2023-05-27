@@ -40,6 +40,7 @@ const signInWithGoogle = async () => {
     const q = query(collection(db, "users"), where("uid", "==", user.uid));
     const querySnapshot = await getDocs(q);
 
+
     if (querySnapshot.empty) {
       await addDoc(collection(db, "users"), {
         uid: user.uid,
@@ -47,6 +48,7 @@ const signInWithGoogle = async () => {
         authProvider: "google",
         email: user.email,
       });
+      
     }
   } catch (err) {
     console.error(err);

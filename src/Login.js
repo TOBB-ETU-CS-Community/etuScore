@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, logInWithEmailAndPassword, signInWithGoogle } from "./firebase";
+import ReactLoading from "react-loading";
 import "./Login.css";
 
 function Login() {
@@ -12,7 +13,7 @@ function Login() {
 
   useEffect(() => {
     if (loading) {
-      // Show a loading screen or spinner while checking authentication state
+      
       return;
     }
     if (user) {
@@ -53,7 +54,15 @@ function Login() {
           Login
         </button>
         <button className="login__btn login__google" onClick={signInWithGoogle}>
-          Login with Google
+          Login with Google {loading === true && (
+        <ReactLoading
+          className="spinner"
+          type="spin"
+          color="#FF6100"
+          height={50}
+          width={50}
+        />
+      )}
         </button>
         <div>
           <Link to="/reset">Forgot Password</Link>
