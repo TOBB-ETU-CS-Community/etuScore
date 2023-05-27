@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { auth, registerWithEmailAndPassword, signInWithGoogle } from "./firebase";
+import { auth, registerWithEmailAndPassword, signInWithGoogle } from "../services/firebase";
 import "./Register.css";
 
 function Register() {

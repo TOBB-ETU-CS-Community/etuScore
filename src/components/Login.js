@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, logInWithEmailAndPassword, signInWithGoogle } from "./firebase";
-import ReactLoading from "react-loading";
+import { auth, logInWithEmailAndPassword, signInWithGoogle } from "../services/firebase";
 import "./Login.css";
 
 function Login() {
@@ -54,15 +53,7 @@ function Login() {
           Login
         </button>
         <button className="login__btn login__google" onClick={signInWithGoogle}>
-          Login with Google {loading === true && (
-        <ReactLoading
-          className="spinner"
-          type="spin"
-          color="#FF6100"
-          height={50}
-          width={50}
-        />
-      )}
+          Login with Google 
         </button>
         <div>
           <Link to="/reset">Forgot Password</Link>
