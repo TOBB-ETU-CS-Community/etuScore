@@ -38,7 +38,7 @@ function Register() {
       // Show a loading screen or spinner while checking authentication state
       return;
     }
-    if (user) {
+    if (user) { 
       navigate("/dashboard");
     }
   }, [user, loading, navigate]);
@@ -46,6 +46,9 @@ function Register() {
   return (
     <div className="register">
       <div className="register__container">
+        <div style={{marginBottom:"10px" }} >
+          Only 'etu.edu.tr' are allowed. 
+        </div>
         <input
           type="text"
           className="register__textBox"
@@ -70,7 +73,7 @@ function Register() {
         <button className="register__btn" onClick={handleRegister}>
           Register
         </button>
-        
+
         <div>
           Already have an account? <Link to="/">Login</Link> now.
         </div>
