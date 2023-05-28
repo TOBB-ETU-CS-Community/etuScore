@@ -1,12 +1,14 @@
 import "./header.module.scss";
-import { logout, auth } from "../../../services/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useEffect } from "react";
-import { db } from "../../../services/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import {logout} from "../../../services/firebase";
+import { useState } from "react";
+const Header = ({ PageInd, setPageInd}) => {
+  const groups = () => {
+    setPageInd(1);
+  };
+  const matches = () => {
+    setPageInd(0);
+  };
 
-const Header = () => {
- 
   return (
     <header>
       <img
@@ -14,9 +16,12 @@ const Header = () => {
         alt="TOBB ETU"
       />
       <h2>TOBB World Cup Scoreboard</h2>
-      <button className="logout" onClick={logout}>
-        Logout
-      </button>
+      <button className="logout" onClick={matches}
+       >Matches</button>
+      <button className="logout" onClick={groups}
+       >Groups</button>
+      <button className="groups" onClick={logout}
+       >Logout</button>
     </header>
   );
 };
