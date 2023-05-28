@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
 import { auth, db, logout } from "../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
+
+import classes from './Dashboard.css'
+import ScoreboardsGrid from "./components/ScoreboardsGrid"
+import Header from "./components/Header"
+import Footer from "./components/Footer/index.jsx"
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
@@ -35,15 +39,12 @@ function Dashboard() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="dashboard">
-      <div className="dashboard__container">
-        <div>Logged in as</div>
-        <div>{name}</div>
-        <div>{user?.email}</div>
-        <button className="dashboard__btn" onClick={logout}>
-          Logout
-        </button>
-      </div>
+    <div className={classes.app}>
+      <Header/>
+            <main>
+                <ScoreboardsGrid/>
+            </main>
+            <Footer/>
     </div>
   );
 }
