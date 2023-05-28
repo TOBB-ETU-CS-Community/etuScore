@@ -11,7 +11,7 @@ import useTimeout from "../../hooks/useTimeout";
 
 const TIME_BEFORE_GAMES_START = 0; // seconds
 const PLAYING_TIME = 1800000; // milliseconds
-const ScoreboardsGrid = () => {
+const ScoreboardsGrid = ({PageInd,  setPageInd}) => {
   const [timeElapsed, setTimeElapsed] = useState(TIME_BEFORE_GAMES_START);
   const [state, dispatch] = useReducer(ScoresReducer, initialState);
   const [isPlayingTime, setIsPlayingTime] = useState(true);
@@ -76,7 +76,7 @@ const ScoreboardsGrid = () => {
 
   return (
     <>
-      {timeElapsed === 0 ? (
+      {timeElapsed === 0 && PageInd === 0 ? (
         <>
           <MessageBoard message={getScoreBoardStateMessage()} />
           <div className={classes.grid}>
@@ -89,9 +89,14 @@ const ScoreboardsGrid = () => {
             ))}
           </div>
         </>
-      ) : (
+      ) : (PageInd === 1 ?  (
+        <>
+          {// Add a table for displaying groups
+          }
+        </>
+      ): (
         <MessageBoard message={`Games are about to start in ${timeElapsed} seconds.`} />
-      )}
+      ))}
     </>
   );
 };

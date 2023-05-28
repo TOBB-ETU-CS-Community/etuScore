@@ -18,24 +18,80 @@
 // D Group  : https://sheets.googleapis.com/v4/spreadsheets/15vUn5-byqvgrjmQiU8ciLDVpaePYNDH6jSj1_sfbbgw/values/Fikst%C3%BCr!T28:Y33?key={apiKey}
 // TODO: ADD functions for api calls
 
-import axios from 'axios';
+import axios from "axios";
 
 const baseUrl =
   "https://sheets.googleapis.com/v4/spreadsheets/15vUn5-byqvgrjmQiU8ciLDVpaePYNDH6jSj1_sfbbgw/values/Fikst%C3%BCr!";
 const apiKey = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 
 async function fetchMatches() {
-    try {
-      const response = await axios.get(`${baseUrl}D3:J42?key=${apiKey}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching matches:", error);
-      throw error;
-    }
+  try {
+    const response = await axios.get(`${baseUrl}D3:J42?key=${apiKey}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching matches:", error);
+    throw error;
   }
+}
+
+async function fetchGroupA() {
+    try {
+        const response = await axios.get(`${baseUrl}B2:B7?key=${apiKey}`);
+        return response.data.values;
+    } catch (error) {
+        console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+async function fetchGroupB() {
+    try {
+        const response = await axios.get(`${baseUrl}B9:B14?key=${apiKey}`);
+        return response.data.values;
+    } catch (error) {
+        console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+
+async function fetchGroupC() {
+    try {
+        const response = await axios.get(`${baseUrl}B16:B21?key=${apiKey}`);
+        return response.data.values;
+    } catch (error) {
+        console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+
+async function fetchGroupD() {
+    try {
+        const response = await axios.get(`${baseUrl}B23:B28?key=${apiKey}`);
+        return response.data.values;
+    } catch (error) {
+        console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+
+async function fetchGroups() {
+    try {
+        const groupA = await fetchGroupA();
+        const groupB = await fetchGroupB();
+        const groupC = await fetchGroupC();
+        const groupD = await fetchGroupD();
+        return [groupA, groupB, groupC, groupD];
+    } catch (error) {
+        console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+
+
 
 const SheetsService = {
   fetchMatches,
+  fetchGroups
+
 };
 
 export default SheetsService;

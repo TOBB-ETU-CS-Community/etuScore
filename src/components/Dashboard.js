@@ -12,6 +12,7 @@ import Footer from "./components/Footer/index.jsx"
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const [name, setName] = useState("");
+  const [PageInd, setPageInd] = useState(0);
   const navigate = useNavigate();
 
   const fetchUserName = async () => {
@@ -40,9 +41,9 @@ function Dashboard() {
 
   return (
     <div className={classes.app}>
-      <Header/>
+      <Header PageInd={PageInd}  setPageInd={setPageInd} />
             <main>
-                <ScoreboardsGrid/>
+                <ScoreboardsGrid PageInd={PageInd}  setPageInd={setPageInd} />
             </main>
             <Footer/>
     </div>
