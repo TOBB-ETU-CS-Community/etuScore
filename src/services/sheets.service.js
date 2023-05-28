@@ -35,64 +35,60 @@ async function fetchMatches() {
 }
 
 async function fetchGroupA() {
-    try {
-        const response = await axios.get(`${baseUrl}T8:Y12?key=${apiKey}`);
-        return response.data.values;
-    } catch (error) {
-        console.error("Error fetching groups:", error);
-        throw error;
-    }
+  try {
+    const response = await axios.get(`${baseUrl}T8:Y12?key=${apiKey}`);
+    return response.data.values;
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    throw error;
+  }
 }
 async function fetchGroupB() {
-    try {
-        const response = await axios.get(`${baseUrl}T15:Y19?key=${apiKey}`);
-        return response.data.values;
-    } catch (error) {
-        console.error("Error fetching groups:", error);
-        throw error;
-    }
+  try {
+    const response = await axios.get(`${baseUrl}T15:Y19?key=${apiKey}`);
+    return response.data.values;
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    throw error;
+  }
 }
 
 async function fetchGroupC() {
-    try {
-        const response = await axios.get(`${baseUrl}T22:Y26?key=${apiKey}`);
-        return response.data.values;
-    } catch (error) {
-        console.error("Error fetching groups:", error);
-        throw error;
-    }
+  try {
+    const response = await axios.get(`${baseUrl}T22:Y26?key=${apiKey}`);
+    return response.data.values;
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    throw error;
+  }
 }
 
 async function fetchGroupD() {
-    try {
-        const response = await axios.get(`${baseUrl}T29:Y33?key=${apiKey}`);
-        return response.data.values;
-    } catch (error) {
-        console.error("Error fetching groups:", error);
-        throw error;
-    }
+  try {
+    const response = await axios.get(`${baseUrl}T29:Y33?key=${apiKey}`);
+    return response.data.values;
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    throw error;
+  }
 }
 
 async function fetchGroups() {
-    try {
-        const groupA = await fetchGroupA();
-        const groupB = await fetchGroupB();
-        const groupC = await fetchGroupC();
-        const groupD = await fetchGroupD();
-        console.log(groupA, groupB, groupC, groupD);
-        return [groupA, groupB, groupC, groupD];
-    } catch (error) {
-        console.error("Error fetching groups:", error);
-        throw error;
-    }
+  try {
+    const groupA = await fetchGroupA();
+    const groupB = await fetchGroupB();
+    const groupC = await fetchGroupC();
+    const groupD = await fetchGroupD();
+    return [groupA, groupB, groupC, groupD];
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    throw error;
+  }
 }
-
-
 
 const SheetsService = {
   fetchMatches,
-  fetchGroups
-
+  fetchGroups,
 };
 
 export default SheetsService;

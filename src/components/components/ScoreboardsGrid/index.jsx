@@ -45,7 +45,6 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
     const fetchGroups = async () => {
       try {
         const fetchedGroups = await SheetsService.fetchGroups();
-        console.log("fetchedGroups", fetchedGroups);
         setGroups(fetchedGroups ?? []);
       } catch (error) {
         console.error("Error fetching groups:", error);
