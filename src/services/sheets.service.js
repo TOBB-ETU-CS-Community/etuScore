@@ -36,7 +36,7 @@ async function fetchMatches() {
 
 async function fetchGroupA() {
     try {
-        const response = await axios.get(`${baseUrl}B2:B7?key=${apiKey}`);
+        const response = await axios.get(`${baseUrl}T8:Y12?key=${apiKey}`);
         return response.data.values;
     } catch (error) {
         console.error("Error fetching groups:", error);
@@ -45,7 +45,7 @@ async function fetchGroupA() {
 }
 async function fetchGroupB() {
     try {
-        const response = await axios.get(`${baseUrl}B9:B14?key=${apiKey}`);
+        const response = await axios.get(`${baseUrl}T15:Y19?key=${apiKey}`);
         return response.data.values;
     } catch (error) {
         console.error("Error fetching groups:", error);
@@ -55,7 +55,7 @@ async function fetchGroupB() {
 
 async function fetchGroupC() {
     try {
-        const response = await axios.get(`${baseUrl}B16:B21?key=${apiKey}`);
+        const response = await axios.get(`${baseUrl}T22:Y26?key=${apiKey}`);
         return response.data.values;
     } catch (error) {
         console.error("Error fetching groups:", error);
@@ -65,7 +65,7 @@ async function fetchGroupC() {
 
 async function fetchGroupD() {
     try {
-        const response = await axios.get(`${baseUrl}B23:B28?key=${apiKey}`);
+        const response = await axios.get(`${baseUrl}T29:Y33?key=${apiKey}`);
         return response.data.values;
     } catch (error) {
         console.error("Error fetching groups:", error);
@@ -79,6 +79,7 @@ async function fetchGroups() {
         const groupB = await fetchGroupB();
         const groupC = await fetchGroupC();
         const groupD = await fetchGroupD();
+        console.log(groupA, groupB, groupC, groupD);
         return [groupA, groupB, groupC, groupD];
     } catch (error) {
         console.error("Error fetching groups:", error);

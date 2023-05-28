@@ -1,21 +1,25 @@
-import { useEffect, useReducer, useState } from "react";
-
+import React, { useEffect, useReducer, useState } from "react";
 import classes from "./scoreboards-grid.module.scss";
 import Scoreboard from "../Scoreboard";
 import useInterval from "../../hooks/useInterval";
 import MessageBoard from "../MessageBoard";
-import ScoresReducer, { actionTypes, initialState, fetchMatches } from "./ScoresReducer";
+import ScoresReducer, {
+  actionTypes,
+  initialState,
+  fetchMatches,
+} from "./ScoresReducer";
+import SheetsService from "../../../services/sheets.service";
 import useRandomInterval from "../../hooks/useRandomInterval";
 import { areAllGamesFinished, getRandomInt } from "../../utils";
 import useTimeout from "../../hooks/useTimeout";
 
 const TIME_BEFORE_GAMES_START = 0; // seconds
 const PLAYING_TIME = 1800000; // milliseconds
-const ScoreboardsGrid = ({PageInd,  setPageInd}) => {
+const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
   const [timeElapsed, setTimeElapsed] = useState(TIME_BEFORE_GAMES_START);
   const [state, dispatch] = useReducer(ScoresReducer, initialState);
   const [isPlayingTime, setIsPlayingTime] = useState(true);
-
+  const [groups, setGroups] = useState([]);
   const { games, finishedGames } = state;
   const gamesToRender = games.length > 0 ? games : finishedGames;
 
@@ -33,8 +37,24 @@ const ScoreboardsGrid = ({PageInd,  setPageInd}) => {
       const { games } = await fetchMatches();
       dispatch({ type: actionTypes.FETCH_GAMES, data: { games } });
     };
+    
+
     fetchGames();
   }, []);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const { groups: fetchedGroups } = await SheetsService.fetchGroups();
+        setGroups(fetchedGroups ?? []);
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
+  
+    fetchGroups();
+  }, []);
+  
 
   // Start games in random moment of time
   const minGameId = 0;
@@ -70,9 +90,10 @@ const ScoreboardsGrid = ({PageInd,  setPageInd}) => {
     setIsPlayingTime(false);
   }, PLAYING_TIME);
 
-  const getGameStatus = (isGameStarted) => isGameStarted ? 'Playing' : '';
+  const getGameStatus = (isGameStarted) => (isGameStarted ? "Playing" : "");
 
-  const getScoreBoardStateMessage = () => areAllGamesFinished(games) ? 'Summary' : 'Current Games';
+  const getScoreBoardStateMessage = () =>
+    areAllGamesFinished(games) ? "Summary" : "Current Games";
 
   return (
     <>
@@ -89,14 +110,46 @@ const ScoreboardsGrid = ({PageInd,  setPageInd}) => {
             ))}
           </div>
         </>
-      ) : (PageInd === 1 ?  (
+      ) : PageInd === 1 ? (
         <>
-          {// Add a table for displaying groups
-          }
+          {groups.length > 0 ? (
+            groups.map((group, groupIndex) => (
+              <div className={classes.grid} key={groupIndex}>
+                {group.map((team, teamIndex) => (
+                  <table key={teamIndex}>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Takım</th>
+                        <th>O</th>
+                        <th>G</th>
+                        <th>M</th>
+                        <th>A</th>
+                        <th>P</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {team.values.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {row.map((cell, cellIndex) => (
+                            <td key={cellIndex}>{cell}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ))}
+              </div>
+            ))
+          ) : (
+            <p>Loading groups...</p>
+          )}
         </>
-      ): (
-        <MessageBoard message={`Games are about to start in ${timeElapsed} seconds.`} />
-      ))}
+      ) : (
+        <MessageBoard
+          message={`Games are about to start in ${timeElapsed} seconds.`}
+        />
+      )}
     </>
   );
 };
