@@ -37,7 +37,6 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
       const { games } = await fetchMatches();
       dispatch({ type: actionTypes.FETCH_GAMES, data: { games } });
     };
-    
 
     fetchGames();
   }, []);
@@ -45,29 +44,29 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const { groups: fetchedGroups } = await SheetsService.fetchGroups();
+        const fetchedGroups = await SheetsService.fetchGroups();
+        console.log("fetchedGroups", fetchedGroups);
         setGroups(fetchedGroups ?? []);
       } catch (error) {
         console.error("Error fetching groups:", error);
       }
     };
-  
+
     fetchGroups();
-  }, []);
-  
+  }, [groups, setGroups]);
 
   // Start games in random moment of time
   const minGameId = 0;
   const maxGameId = games.length - 1;
   const delay = [3000, 4000];
   const cancelUpdateGameState = useRandomInterval(() => {
-    if (isPlayingTime) {
+    /*if (isPlayingTime) {
       const gameId = getRandomInt(minGameId, maxGameId);
       dispatch({ type: actionTypes.START_GAME, data: { gameId } });
     } else {
       const gameId = getRandomInt(minGameId, initialState.games.length - 1);
       dispatch({ type: actionTypes.FINISH_GAME, data: { gameId } });
-    }
+    }*/
   }, ...delay);
 
   // Start game score updates
@@ -115,30 +114,36 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
           {groups.length > 0 ? (
             groups.map((group, groupIndex) => (
               <div className={classes.grid} key={groupIndex}>
-                {group.map((team, teamIndex) => (
-                  <table key={teamIndex}>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th>Takım</th>
-                        <th>O</th>
-                        <th>G</th>
-                        <th>M</th>
-                        <th>A</th>
-                        <th>P</th>
+                <table key={groupIndex}>
+                  <thead>
+                    <h3>
+                      {groupIndex === 0
+                        ? "A Grubu"
+                        : groupIndex === 1
+                        ? "B Grubu"
+                        : groupIndex === 2
+                        ? "C Grubu"
+                        : "D Grubu"}
+                    </h3>
+                    <tr>
+                      <th>Takım</th>
+                      <th>O</th>
+                      <th>G</th>
+                      <th>M</th>
+                      <th>A</th>
+                      <th>P</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.map((team, teamIndex) => (
+                      <tr key={teamIndex}>
+                        {team.map((row, rowIndex) => (
+                          <td key={rowIndex}>{row}</td>
+                        ))}
                       </tr>
-                    </thead>
-                    <tbody>
-                      {team.values.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {row.map((cell, cellIndex) => (
-                            <td key={cellIndex}>{cell}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ))}
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ))
           ) : (

@@ -5,3 +5,25 @@
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
+
+table {
+  text-align: center;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #fdbe11;
+  th {
+    background-color: #fdbe11;
+    color: #fff;
+    padding: 0.5rem;
+    border: 1px solid #fdbe11;
+  }
+  td {
+    padding: 0.5rem;
+    border: 1px solid #fdbe11;
+  }
+}
+
+h3 {
+  text-align: center;
+  margin: 1rem;
+}
