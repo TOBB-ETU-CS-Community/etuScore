@@ -111,9 +111,10 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
         </>
       ) : PageInd === 1 ? (
         <>
+        <div className={classes.grid} key={1}>
           {groups.length > 0 ? (
             groups.map((group, groupIndex) => (
-              <div className={classes.grid} key={groupIndex}>
+              
                 <table key={groupIndex}>
                   <thead>
                     <h3>
@@ -144,11 +145,13 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                     ))}
                   </tbody>
                 </table>
-              </div>
+             
             ))
+            
           ) : (
             <p>Loading groups...</p>
           )}
+          </div>
         </>
       ) : (
         <MessageBoard
