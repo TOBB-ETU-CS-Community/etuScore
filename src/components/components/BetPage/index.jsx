@@ -128,7 +128,7 @@ function BetPage({
                     className={classes.button}
                     onClick={async () => {
                       
-                        addParticipantToRoom(room.id,auth.currentUser.uid);
+                        await addParticipantToRoom(room.id,auth.currentUser.uid);
                         await fetchRooms();
                     }}
                   >
