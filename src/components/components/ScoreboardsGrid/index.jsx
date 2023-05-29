@@ -93,16 +93,56 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
   const getScoreBoardStateMessage = () =>
     areAllGamesFinished(games) ? "Summary" : "Current Games";
 
+  const [date, setDate] = useState(new Date());
+
+  const [formattedDate, setFormattedDate] = useState(
+    date.toLocaleDateString("tr-TR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+  );
+
+  function prevDay() {
+    setDate(new Date(date.setDate(date.getDate() - 1)));
+    setFormattedDate(
+      date.toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    );
+  }
+
+  function nextDay() {
+    setDate(new Date(date.setDate(date.getDate() + 1)));
+    setFormattedDate(
+      date.toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    );
+  }
   return (
     <>
       {timeElapsed === 0 && PageInd === 0 ? (
         <>
           <MessageBoard message={getScoreBoardStateMessage()} />
+          <span onClick={prevDay} className={classes.time}>
+            {"<"}--
+          </span>
+          Date : {formattedDate}
+          <span onClick={nextDay} className={classes.time}>
+            --{">"}
+          </span>
           <div className={classes.grid}>
             {gamesToRender.map((pairScore) => (
               <Scoreboard
                 key={pairScore.gameId}
                 pairScore={pairScore}
+                day={formattedDate}
+                //change date format to dd.mm.yyyy
                 status={getGameStatus(pairScore.startedGame)}
               />
             ))}
@@ -110,10 +150,9 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
         </>
       ) : PageInd === 1 ? (
         <>
-        <div className={classes.grid} key={1}>
-          {groups.length > 0 ? (
-            groups.map((group, groupIndex) => (
-              
+          <div className={classes.grid} key={1}>
+            {groups.length > 0 ? (
+              groups.map((group, groupIndex) => (
                 <table key={groupIndex}>
                   <thead>
                     <h3>
@@ -144,12 +183,10 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                     ))}
                   </tbody>
                 </table>
-             
-            ))
-            
-          ) : (
-            <p>Loading groups...</p>
-          )}
+              ))
+            ) : (
+              <p>Loading groups...</p>
+            )}
           </div>
         </>
       ) : (
