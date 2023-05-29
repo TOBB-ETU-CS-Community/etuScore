@@ -3,7 +3,7 @@ import { query, collection, getDocs, where, doc } from "firebase/firestore";
 import { auth, db } from "../services/firebase"; // Your firebase service
 import { useAuthState } from "react-firebase-hooks/auth";
 import { saveDataToFirestore, fetchMatchesFireStore,fetchGroupsFireStore } from "../services/firebase";
-
+import classes from "./AdminOnly.scss";
 const AdminOnlyComponent = () => {
   const [currentUser, loading, error] = useAuthState(auth);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -27,11 +27,11 @@ const AdminOnlyComponent = () => {
 
   if (isAdmin) {
     return (
-      <>
-        <button onClick={saveDataToFirestore}> Save Sheets To FireStore</button>
+      <div className="admin-button">
+        <button  onClick={saveDataToFirestore}> Save Sheets To FireStore</button>
         <button onClick={fetchMatchesFireStore}> fetchMatches from FireStore</button>
         <button onClick={fetchGroupsFireStore}> fetchGroups from FireStore</button>
-      </>
+      </div>
     );
   } else {
     return <></>;
