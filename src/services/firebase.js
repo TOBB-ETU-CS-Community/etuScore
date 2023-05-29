@@ -21,6 +21,7 @@ import {
   getFirestore,
   query,
   getDocs,
+  getDoc,
   where,
   addDoc,
 } from "firebase/firestore";
@@ -147,14 +148,19 @@ const createRoomForCurrentUser = async (name, participants,matchId) => {
   }
 };
 
-// Adding a participant to a room
 const addParticipantToRoom = async (roomId, participantId) => {
   try {
     const roomDocRef = doc(db, "rooms", roomId);
 
-    const roomSnapshot = await getDocs(roomDocRef);
+    const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
     const participants = roomData.participants || [];
+
+    // Check if the participant is already in the room
+    if (participants.includes(participantId)) {
+      console.log("Participant is already in the room");
+      return; // Exit the function to prevent adding duplicate participants
+    }
 
     await setDoc(
       roomDocRef,
@@ -170,6 +176,7 @@ const addParticipantToRoom = async (roomId, participantId) => {
     throw err;
   }
 };
+
 const getRoomsByActiveMatchId = async (activeMatchId) => {
   try {
     const roomsCollectionRef = collection(db, "rooms");

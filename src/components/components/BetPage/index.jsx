@@ -112,6 +112,12 @@ function BetPage({
             >
               Match İnformation
             </button>
+            <button
+              className={classes.button}
+              onClick={async () => await fetchRooms()}
+            >
+              Reload Rooms
+            </button>
             <div className={classes.rooms}>
               {rooms?.map((room) => (
                 <div className={classes.room} key={room.id}>
@@ -120,8 +126,9 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      addParticipantToRoom(room.id,auth.currentUser.uid);
-                      await fetchRooms();
+                      console.log(auth.currentUser.uid);
+                        addParticipantToRoom(room.id,auth.currentUser.uid);
+                        await fetchRooms();
                     }}
                   >
                     Join
