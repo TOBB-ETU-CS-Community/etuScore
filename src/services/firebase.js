@@ -1,5 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { collection, doc, setDoc,orderBy,limit,serverTimestamp  } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  orderBy,
+  limit,
+  serverTimestamp,
+} from "firebase/firestore";
 
 import {
   GoogleAuthProvider,
@@ -98,56 +105,15 @@ const logout = () => {
   signOut(auth);
 };
 
-// Creating a new bet document
-const createBet = async (creatorId, matchId, participants) => {
-  try {
-    const betCollectionRef = collection(db, "bets");
-
-    const newBetRef = await addDoc(betCollectionRef, {
-      creatorId,
-      matchId,
-      participants,
-      status: "open",
-      winnerId: null,
-    });
-
-    const betId = newBetRef.id;
-    return betId;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-};
-
-// Creating a new match document
-const createMatch = async (name, startTime, participants, roomId) => {
-  try {
-    const matchCollectionRef = collection(db, "matches");
-
-    const newMatchRef = await addDoc(matchCollectionRef, {
-      name,
-      startTime,
-      participants,
-      room: roomId,
-    });
-
-    const matchId = newMatchRef.id;
-    return matchId;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-};
-
-// Creating a new room document
-const createRoom = async (name, participants, activeMatchId) => {
+const createRoom = async (name, participants, matchId,creator) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
 
     const newRoomRef = await addDoc(roomCollectionRef, {
-      name,
-      participants,
-      activeMatchId,
+      creator:creator,
+      name:name,
+      participants:[...participants,creator],
+      matchId:matchId,
     });
 
     const roomId = newRoomRef.id;
@@ -158,6 +124,73 @@ const createRoom = async (name, participants, activeMatchId) => {
   }
 };
 
+// Example usage
+const createRoomForCurrentUser = async (name, participants,matchId) => {
+  try {
+
+    // Get the currently authenticated user
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      const userId = currentUser.uid;
+
+      // Create a new room for the user
+      const roomId = await createRoom(name, [], matchId, userId);
+      console.log("Room created with ID:", roomId);
+      return roomId;
+    } else {
+      console.log("No authenticated user found");
+    }
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+// Adding a participant to a room
+const addParticipantToRoom = async (roomId, participantId) => {
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+
+    const roomSnapshot = await getDocs(roomDocRef);
+    const roomData = roomSnapshot.data();
+    const participants = roomData.participants || [];
+
+    await setDoc(
+      roomDocRef,
+      {
+        participants: [...participants, participantId],
+      },
+      { merge: true }
+    );
+
+    console.log("Participant added to room successfully");
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+const getRoomsByActiveMatchId = async (activeMatchId) => {
+  try {
+    const roomsCollectionRef = collection(db, "rooms");
+
+    const querySnapshot = await getDocs(
+      query(roomsCollectionRef, where("matchId", "==", activeMatchId))
+    );
+
+    const rooms = querySnapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
+    });
+
+    return rooms;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 async function saveDataToFirestore() {
   try {
     const matchesData = await SheetsService.fetchMatches();
@@ -201,7 +234,6 @@ async function saveDataToFirestore() {
         result,
       };
     });
-    console.log(groupsValues);
     const groupsDataObjects = groupsValues.map((group) => {
       const grup1 = group[0];
       const grup2 = group[1];
@@ -220,15 +252,15 @@ async function saveDataToFirestore() {
     // Save matches data to Firestore
     await addDoc(collection(db, "matches"), {
       data: matchesDataObjects,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
     });
 
     await addDoc(collection(db, "groups"), {
       data: groupsDataObjects,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
     });
 
-    console.log("Data saved to Firestore successfully");
+    alert("Data saved to Firestore successfully");
   } catch (error) {
     console.error("Error saving data to Firestore:", error);
     throw error;
@@ -237,7 +269,7 @@ async function saveDataToFirestore() {
 // Read groups from Firestore
 async function fetchGroupsFireStore() {
   const groupsRef = collection(db, "groups");
-  const query1 = query(groupsRef,orderBy("createdAt", "desc"), limit(1));
+  const query1 = query(groupsRef, orderBy("createdAt", "desc"), limit(1));
   const groupsSnapshot = await getDocs(query1);
 
   const groupsData = groupsSnapshot.docs.map((doc) => {
@@ -253,10 +285,10 @@ async function fetchGroupsFireStore() {
 
 // Read matches from Firestore
 async function fetchMatchesFireStore() {
-  const matchesRef = collection(db, "matches");  
+  const matchesRef = collection(db, "matches");
 
   const query1 = query(matchesRef, orderBy("createdAt", "desc"), limit(1));
-    
+
   const matchesSnapshot = await getDocs(query1);
 
   const matchesData = matchesSnapshot.docs.map((doc) => {
@@ -268,7 +300,6 @@ async function fetchMatchesFireStore() {
   return matchesData[0];
 }
 
-
 export {
   auth,
   db,
@@ -276,9 +307,10 @@ export {
   registerWithEmailAndPassword,
   sendPasswordReset,
   logout,
-  createBet,
-  createMatch,
   createRoom,
+  createRoomForCurrentUser,
+  addParticipantToRoom,
+  getRoomsByActiveMatchId,
   saveDataToFirestore,
   fetchGroupsFireStore,
   fetchMatchesFireStore,

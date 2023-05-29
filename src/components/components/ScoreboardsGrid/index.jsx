@@ -50,7 +50,6 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
     const fetchGroups = async () => {
       try {
         const fetchedGroups = await fetchGroupsFireStore();
-        console.log("fetchedGroups", fetchedGroups.data);
         setGroups(fetchedGroups.data ?? []);
       } catch (error) {
         console.error("Error fetching groups:", error);
