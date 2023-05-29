@@ -1,5 +1,7 @@
 .team {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-self: center;
   min-width: 3.75rem;
 }

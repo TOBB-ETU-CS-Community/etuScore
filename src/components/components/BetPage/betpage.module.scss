@@ -1,0 +1,23 @@
+.betpage{
+    margin: 5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    h2{
+        text-align: center;
+    }
+}
+.teams{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.button{
+    width: 100%;
+    margin-top: 1rem;
+}
+.teamview{
+    margin:1rem;
+}

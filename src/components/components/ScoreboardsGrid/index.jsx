@@ -12,7 +12,7 @@ import useRandomInterval from "../../hooks/useRandomInterval";
 import { areAllGamesFinished, getRandomInt } from "../../utils";
 import useTimeout from "../../hooks/useTimeout";
 import { fetchGroupsFireStore } from "../../../services/firebase";
-
+import BetPage from "../BetPage";
 const TIME_BEFORE_GAMES_START = 0; // seconds
 const PLAYING_TIME = 1800000; // milliseconds
 const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
@@ -20,6 +20,11 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
   const [state, dispatch] = useReducer(ScoresReducer, initialState);
   const [isPlayingTime, setIsPlayingTime] = useState(true);
   const [groups, setGroups] = useState([]);
+  const [pairScoreGlobal, setPairScoreGlobal] = useState({});
+  const [statusGlobal, setStatusGlobal] = useState("");
+  const [dayGlobal, setDayGlobal] = useState("");
+
+  //const pairScore, status, day
   const { games, finishedGames } = state;
   const gamesToRender = games.length > 0 ? games : finishedGames;
 
@@ -143,6 +148,11 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                 key={pairScore.gameId}
                 pairScore={pairScore}
                 day={formattedDate}
+                PageInd={PageInd}
+                setPageInd={setPageInd}
+                setPairScoreGlobal={setPairScoreGlobal}
+                setStatusGlobal={setStatusGlobal}
+                setDayGlobal={setDayGlobal}
                 //change date format to dd.mm.yyyy
                 status={getGameStatus(pairScore.startedGame)}
               />
@@ -190,6 +200,17 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
             )}
           </div>
         </>
+      ) : PageInd === 2 ? (
+        <BetPage
+          PageInd={PageInd}
+          setPageInd={setPageInd}
+          pairScoreGlobal={pairScoreGlobal}
+          setPairScoreGlobal={setPairScoreGlobal}
+          statusGlobal={statusGlobal}
+          setStatusGlobal={setStatusGlobal}
+          dayGlobal={dayGlobal}
+          setDayGlobal={setDayGlobal}
+        />
       ) : (
         <MessageBoard
           message={`Games are about to start in ${timeElapsed} seconds.`}
