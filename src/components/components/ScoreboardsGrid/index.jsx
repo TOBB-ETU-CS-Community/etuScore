@@ -8,10 +8,10 @@ import ScoresReducer, {
   initialState,
   fetchMatches,
 } from "./ScoresReducer";
-import SheetsService from "../../../services/sheets.service";
 import useRandomInterval from "../../hooks/useRandomInterval";
 import { areAllGamesFinished, getRandomInt } from "../../utils";
 import useTimeout from "../../hooks/useTimeout";
+import { fetchGroupsFireStore } from "../../../services/firebase";
 
 const TIME_BEFORE_GAMES_START = 0; // seconds
 const PLAYING_TIME = 1800000; // milliseconds
@@ -44,15 +44,16 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const fetchedGroups = await SheetsService.fetchGroups();
-        setGroups(fetchedGroups ?? []);
+        const fetchedGroups = await fetchGroupsFireStore();
+        console.log("fetchedGroups", fetchedGroups.data);
+        setGroups(fetchedGroups.data ?? []);
       } catch (error) {
         console.error("Error fetching groups:", error);
       }
     };
 
     fetchGroups();
-  }, [groups, setGroups]);
+  }, []);
 
   // Start games in random moment of time
   const minGameId = 0;
@@ -152,7 +153,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
         <>
           <div className={classes.grid} key={1}>
             {groups.length > 0 ? (
-              groups.map((group, groupIndex) => (
+              Object.values(groups).map((group, groupIndex) => (
                 <table key={groupIndex}>
                   <thead>
                     <h3>
@@ -174,7 +175,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {group.map((team, teamIndex) => (
+                    {Object.values(group).map((team, teamIndex) => (
                       <tr key={teamIndex}>
                         {team.map((row, rowIndex) => (
                           <td key={rowIndex}>{row}</td>

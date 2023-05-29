@@ -16,7 +16,7 @@
 // B Group  : https://sheets.googleapis.com/v4/spreadsheets/15vUn5-byqvgrjmQiU8ciLDVpaePYNDH6jSj1_sfbbgw/values/Fikst%C3%BCr!T14:Y19?key={apiKey}
 // C Group  : https://sheets.googleapis.com/v4/spreadsheets/15vUn5-byqvgrjmQiU8ciLDVpaePYNDH6jSj1_sfbbgw/values/Fikst%C3%BCr!T21:Y26?key={apiKey}
 // D Group  : https://sheets.googleapis.com/v4/spreadsheets/15vUn5-byqvgrjmQiU8ciLDVpaePYNDH6jSj1_sfbbgw/values/Fikst%C3%BCr!T28:Y33?key={apiKey}
-// TODO: ADD functions for api calls
+
 
 import axios from "axios";
 

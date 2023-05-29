@@ -8,6 +8,7 @@ import classes from './Dashboard.css'
 import ScoreboardsGrid from "./components/ScoreboardsGrid"
 import Header from "./components/Header"
 import Footer from "./components/Footer/index.jsx"
+import AdminOnlyComponent from "./AdminOnly";
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
@@ -17,10 +18,10 @@ function Dashboard() {
 
   const fetchUserName = async () => {
     try {
-      const q = query(collection(db, "users"), where("uid", "==", user?.uid));
+      const q = query(collection(db, "users"), where("userId", "==", user?.uid));
       const querySnapshot = await getDocs(q);
       const userData = querySnapshot.docs[0].data();
-      setName(userData.name);
+      setName(userData.username);
     } catch (err) {
       console.error(err);
       
@@ -42,6 +43,7 @@ function Dashboard() {
   return (
     <div className={classes.app}>
       <Header PageInd={PageInd}  setPageInd={setPageInd} />
+            <AdminOnlyComponent />
             <main>
                 <ScoreboardsGrid PageInd={PageInd}  setPageInd={setPageInd} />
             </main>

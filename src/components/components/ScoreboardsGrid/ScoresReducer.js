@@ -1,5 +1,5 @@
 import SheetsService from "../../../services/sheets.service";
-
+import {fetchMatchesFireStore} from "../../../services/firebase";
 const teamsMap = {
   1: "homeTeam",
   2: "awayTeam",
@@ -100,39 +100,39 @@ const reducer = (state, action) => {
 
 export const fetchMatches = async () => {
   try {
-    const response = await SheetsService.fetchMatches();
-    const matches = response.values;
+    const response = await fetchMatchesFireStore();
+    const matches = response.data;
     const games = matches.map((match, index) => {
-      if (match.length < 7) {
+      if (Object.keys(match).length < 7) {
         return {
-          gameId: match[0], // Event ID
+          gameId: match.matchNumber, // Event ID
           startedGame: false,
-          eventDate: match[4], // Event Date
+          eventDate: match.date, // Event Date
           homeTeam: {
-            name: match[2], // Event Name
+            name: match.team1, // Event Name
             countryCode: "ca",
             score:0, // Parse the home score as an integer
           },
           awayTeam: {
-            name: match[3], // Event Description
+            name: match.team2, // Event Description
             countryCode: "mx",
             score: 0, // Parse the away score as an integer
           },
         };
       }
-      const score = match[6]; // Event Result
+      const score = match.result; // Event Result
       const [homeScore, awayScore] = score.split("-");
       return {
-        gameId: match[0], // Event ID
+        gameId: match.matchNumber, // Event ID
         startedGame: false,
-        eventDate: match[1], // Event Date
+        eventDate: match.date, // Event Date
         homeTeam: {
-          name: match[2], // Event Name
+          name: match.team1, // Event Name
           countryCode: "ca",
           score: parseInt(homeScore), // Parse the home score as an integer
         },
         awayTeam: {
-          name: match[3], // Event Description
+          name: match.team2, // Event Description
           countryCode: "mx",
           score: parseInt(awayScore), // Parse the away score as an integer
         },

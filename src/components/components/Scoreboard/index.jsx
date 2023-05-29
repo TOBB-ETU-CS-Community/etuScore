@@ -8,7 +8,6 @@ const Scoreboard = ({ pairScore, status, day }) => {
     eventDate = eventDate[0] + '.' + eventDate[1];
     let dayDate = day.split('.');
     dayDate = dayDate[0] + '.' + dayDate[1];
-    console.log(eventDate + " "  +dayDate);
     return (
         eventDate === dayDate &&
         <section className={classes.scoreboard}>
