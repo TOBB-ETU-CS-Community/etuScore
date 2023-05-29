@@ -7,6 +7,7 @@ import {
   createRoomForCurrentUser,
   addParticipantToRoom,
   getRoomsByActiveMatchId,
+  leaveRoom
 } from "../../../services/firebase";
 import classes from "./betpage.module.scss";
 import Footer from "../Footer/index.jsx";
@@ -126,12 +127,21 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      console.log(auth.currentUser.uid);
+                      
                         addParticipantToRoom(room.id,auth.currentUser.uid);
                         await fetchRooms();
                     }}
                   >
                     Join
+                  </button>
+                  <button
+                    className={classes.button}
+                    onClick={async () => {
+                        await leaveRoom(room.id,auth.currentUser.uid);
+                        await fetchRooms();
+                    }}
+                  >
+                    Leave
                   </button>
                 </div>
               ))}

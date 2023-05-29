@@ -177,6 +177,41 @@ const addParticipantToRoom = async (roomId, participantId) => {
   }
 };
 
+const leaveRoom = async (roomId, participantId) => {
+  try {
+    const roomDocRef = doc(db, "rooms", roomId);
+
+    const roomSnapshot = await getDoc(roomDocRef);
+    const roomData = roomSnapshot.data();
+    const participants = roomData.participants || [];
+
+    // Check if the participant is in the room
+    if (!participants.includes(participantId)) {
+      console.log("Participant is not in the room");
+      return; // Exit the function since the participant is not in the room
+    }
+
+    // Remove the participant from the room's participants array
+    const updatedParticipants = participants.filter(
+      (id) => id !== participantId
+    );
+
+    await setDoc(
+      roomDocRef,
+      {
+        participants: updatedParticipants,
+      },
+      { merge: true }
+    );
+
+    console.log("Participant left the room successfully");
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+
 const getRoomsByActiveMatchId = async (activeMatchId) => {
   try {
     const roomsCollectionRef = collection(db, "rooms");
@@ -318,6 +353,7 @@ export {
   createRoomForCurrentUser,
   addParticipantToRoom,
   getRoomsByActiveMatchId,
+  leaveRoom,
   saveDataToFirestore,
   fetchGroupsFireStore,
   fetchMatchesFireStore,
