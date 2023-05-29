@@ -28,6 +28,12 @@ function BetPage({
   const handleRoomNameChange = (event) => {
     setRoomName(event.target.value);
   };
+  const fetchRooms = async () => {
+    //fetch rooms from pairScoreGlobal.gameId
+    const rooms = await getRoomsByActiveMatchId(pairScoreGlobal.gameId);
+    setRooms(rooms);
+    console.log(rooms);
+  };
   useEffect(() => {
     const fetchRooms = async () => {
       //fetch rooms from pairScoreGlobal.gameId
@@ -48,6 +54,7 @@ function BetPage({
       pairScoreGlobal.gameId
     );
     console.log(response);
+    await fetchRooms();
     setLoading(false);
   };
   return (
@@ -112,8 +119,9 @@ function BetPage({
                   <p>Participants: {room.participants.length}</p>
                   <button
                     className={classes.button}
-                    onClick={() => {
+                    onClick={async () => {
                       addParticipantToRoom(room.id,auth.currentUser.uid);
+                      await fetchRooms();
                     }}
                   >
                     Join
