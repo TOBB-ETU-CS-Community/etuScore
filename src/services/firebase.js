@@ -25,6 +25,9 @@ import {
   where,
   addDoc,
   deleteDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import SheetsService from "./sheets.service";
 
@@ -77,6 +80,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       bets: [],
       isAdmin: false,
       authProvider: "local",
+      balance: 5,
     });
 
     // Send verification email
@@ -115,7 +119,8 @@ const createRoom = async (
   matchId,
   creator,
   creatorsTeam,
-  availableTeam
+  availableTeam,
+  Startdate
 ) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
@@ -130,6 +135,7 @@ const createRoom = async (
       creatorsTeam: creatorsTeam,
       availableTeam: availableTeam,
       createdAt: serverTimestamp(),
+      Startdate: Startdate,
     });
 
     const roomId = newRoomRef.id;
@@ -140,13 +146,19 @@ const createRoom = async (
   }
 };
 
-const createRoomForCurrentUser = async (name, matchId, team, availableTeam) => {
+const createRoomForCurrentUser = async (
+  name,
+  matchId,
+  team,
+  availableTeam,
+  Startdate
+) => {
   try {
-    // Get the currently authenticated user
     const currentUser = auth.currentUser;
-
+    console.log(auth);
     if (currentUser) {
       const userId = currentUser.uid;
+
       try {
         const q = query(
           collection(db, "users"),
@@ -154,8 +166,9 @@ const createRoomForCurrentUser = async (name, matchId, team, availableTeam) => {
         );
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-        // Create a new room for the user with the specified team
+
         console.log("Creating room for user:", userData.username);
+
         const roomId = await createRoom(
           name,
           userData.username,
@@ -164,8 +177,16 @@ const createRoomForCurrentUser = async (name, matchId, team, availableTeam) => {
           matchId,
           userId,
           team,
-          availableTeam
+          availableTeam,
+          Startdate
         );
+
+        // Add roomId to the bets array of the user
+        const userDocRef = querySnapshot.docs[0].ref;
+        await updateDoc(userDocRef, {
+          bets: arrayUnion(roomId),
+        });
+
         console.log("Room created with ID:", roomId);
         return roomId;
       } catch (err) {
@@ -180,32 +201,41 @@ const createRoomForCurrentUser = async (name, matchId, team, availableTeam) => {
   }
 };
 
+
 const addParticipantToRoom = async (roomId) => {
   try {
     const currentUser = auth.currentUser;
     const roomDocRef = doc(db, "rooms", roomId);
 
-    // Get the room data
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
 
-    // Check if the current user is the creator
     if (roomData.creator === currentUser.uid) {
       console.log("Creator cannot join the same room");
       return;
     }
 
     try {
-      const q = query(collection(db, "users"), where("userId", "==", currentUser?.uid));
+      const q = query(collection(db, "users"), currentUser?.uid);
       const querySnapshot = await getDocs(q);
       const userData = querySnapshot.docs[0].data();
-      
-      // Add the participant to the room
+
       console.log("Adding user:", userData.username);
-      await setDoc(roomDocRef, {
-        participant: currentUser.uid,
-        participantName: userData.username,
-      }, { merge: true });
+
+      await setDoc(
+        roomDocRef,
+        {
+          participant: currentUser.uid,
+          participantName: userData.username,
+        },
+        { merge: true }
+      );
+
+      // Add roomId to the bets array of the user
+      const userDocRef = querySnapshot.docs[0].ref;
+      await updateDoc(userDocRef, {
+        bets: arrayUnion(roomId),
+      });
 
       console.log("Participant added to room successfully");
     } catch (err) {
@@ -217,7 +247,6 @@ const addParticipantToRoom = async (roomId) => {
   }
 };
 
-
 const leaveRoom = async (roomId, participantId) => {
   try {
     const roomDocRef = doc(db, "rooms", roomId);
@@ -225,9 +254,7 @@ const leaveRoom = async (roomId, participantId) => {
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
 
-    // Check if the participant is the creator
     if (roomData.creator === participantId) {
-      // If there is a participant, transfer ownership to the participant
       if (roomData.participant) {
         await setDoc(
           roomDocRef,
@@ -242,13 +269,20 @@ const leaveRoom = async (roomId, participantId) => {
 
         console.log("Ownership transferred to participant");
       } else {
-        // If there is no participant, delete the room
         await deleteDoc(roomDocRef);
+
+       // Add roomId to the bets array of the user
+       const q = query(collection(db, "users"), auth?.currentUser?.uid);
+       const querySnapshot = await getDocs(q);
+       const userDocRef = querySnapshot.docs[0].ref;
+       await updateDoc(userDocRef, {
+         bets: arrayRemove(roomId),
+       });
+
         console.log("Room deleted");
         return;
       }
     } else if (roomData.participant === participantId) {
-      // If the participant is leaving
       await setDoc(
         roomDocRef,
         {
@@ -268,7 +302,6 @@ const leaveRoom = async (roomId, participantId) => {
     throw err;
   }
 };
-
 
 const getRoomsByActiveMatchId = async (activeMatchId) => {
   try {

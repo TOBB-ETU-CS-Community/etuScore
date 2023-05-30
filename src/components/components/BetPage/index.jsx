@@ -26,7 +26,7 @@ function BetPage({
   const [loading, setLoading] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState(pairScoreGlobal.homeTeam.name);
   const [selectedTeamForm, setSelectedTeamForm] = useState("");
 
   const handleRoomNameChange = (event) => {
@@ -55,15 +55,15 @@ function BetPage({
   const createBet = async (event) => {
     event.preventDefault();
     setLoading(true);
-    const response = await createRoomForCurrentUser(
+     await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
       selectedTeamForm,
       selectedTeamForm === pairScoreGlobal.homeTeam.name
         ? pairScoreGlobal.awayTeam.name
-        : pairScoreGlobal.homeTeam.name
+        : pairScoreGlobal.homeTeam.name,
+        pairScoreGlobal.eventDate
     );
-    console.log(response);
     await fetchRooms();
     setLoading(false);
   };
