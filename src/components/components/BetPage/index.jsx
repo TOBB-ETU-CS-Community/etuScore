@@ -26,7 +26,7 @@ function BetPage({
   const [loading, setLoading] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState(0);
+  const [selectedTeam, setSelectedTeam] = useState("");
   const [selectedTeamForm, setSelectedTeamForm] = useState("");
 
   const handleRoomNameChange = (event) => {
@@ -59,7 +59,9 @@ function BetPage({
       roomName,
       pairScoreGlobal.gameId,
       selectedTeamForm,
-      selectedTeamForm === pairScoreGlobal.homeTeam.name ? pairScoreGlobal.awayTeam.name : pairScoreGlobal.homeTeam.name
+      selectedTeamForm === pairScoreGlobal.homeTeam.name
+        ? pairScoreGlobal.awayTeam.name
+        : pairScoreGlobal.homeTeam.name
     );
     console.log(response);
     await fetchRooms();
@@ -145,32 +147,45 @@ function BetPage({
             </button>
             <div className={classes.teamButtons}>
               <button
-                className={selectedTeam === 0 ? classes.teama : classes.teamb}
-                onClick={() => setSelectedTeam(0)}
+                className={selectedTeam === pairScoreGlobal.homeTeam.name ? classes.teama : classes.teamb}
+                onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
               >
                 Bet to {pairScoreGlobal.homeTeam.name}
               </button>
               <button
-                className={selectedTeam === 1 ? classes.teama : classes.teamb}
-                onClick={() => setSelectedTeam(1)}
+                className={selectedTeam === pairScoreGlobal.awayTeam.name ? classes.teama : classes.teamb}
+                onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
               >
                 Bet to {pairScoreGlobal.awayTeam.name}
               </button>
             </div>
             <div className={classes.rooms}>
               {rooms?.map((room) => (
-                <div className={classes.room} key={room.id}>
+                <div
+                  className={`${classes.room} ${
+                    selectedTeam === room.availableTeam ? "" : classes.hidden
+                  }`}
+                >
                   <h3>{room.name}</h3>
                   <p>Creator: {room.creatorName}</p>
-                  {(room.participantName!== undefined && room.participantName !== "" && room.participantName !== null )&&(<p>Participant: {room.participantName}</p>)}
+                  {room.participantName !== undefined &&
+                    room.participantName !== "" &&
+                    room.participantName !== null && (
+                      <p>Participant: {room.participantName}</p>
+                    )}
+                  <p>Available Team: {room.availableTeam}</p>
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      await addParticipantToRoom(room.id, auth.currentUser.uid);
-                      await fetchRooms();
+                      if(room.participantName === undefined || room.participantName === "" || room.participantName === null){
+                        await addParticipantToRoom(room.id, auth.currentUser.uid);
+                        await fetchRooms();
+                      }else {
+                        alert("This room is full");
+                      }
                     }}
                   >
-                    Join
+                    { (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "Join":"Room Full"}
                   </button>
                   <button
                     className={classes.button}

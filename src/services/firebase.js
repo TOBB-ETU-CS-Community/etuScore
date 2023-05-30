@@ -219,47 +219,51 @@ const leaveRoom = async (roomId, participantId) => {
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
-    const participants = roomData.participants || [];
 
-    // Check if the participant is in the room
-    if (!participants.includes(participantId)) {
-      console.log("Participant is not in the room");
-      return; // Exit the function since the participant is not in the room
-    }
+    // Check if the participant is the creator
+    if (roomData.creator === participantId) {
+      // If there is a participant, transfer ownership to the participant
+      if (roomData.participant) {
+        await setDoc(
+          roomDocRef,
+          {
+            creator: roomData.participant,
+            creatorName: roomData.participantName,
+            participant: null,
+            participantName: null,
+          },
+          { merge: true }
+        );
 
-    // Remove the participant from the room's participants array
-    const updatedParticipants = participants.filter(
-      (id) => id !== participantId
-    );
-
-    // Update the room document with the updated participants array
-    await setDoc(
-      roomDocRef,
-      {
-        participants: updatedParticipants,
-      },
-      { merge: true }
-    );
-
-    console.log("Participant left the room successfully");
-
-    // Check if the participant count is zero and the user leaving is the creator
-    if (
-      updatedParticipants.length === 0 &&
-      roomData.creator === participantId
-    ) {
-      console.log(
-        "Deleting the room as the creator has left and participant count is zero"
+        console.log("Ownership transferred to participant");
+      } else {
+        // If there is no participant, delete the room
+        await deleteDoc(roomDocRef);
+        console.log("Room deleted");
+        return;
+      }
+    } else if (roomData.participant === participantId) {
+      // If the participant is leaving
+      await setDoc(
+        roomDocRef,
+        {
+          participant: null,
+          participantName: null,
+        },
+        { merge: true }
       );
 
-      // Delete the room document
-      await deleteDoc(roomDocRef);
+      console.log("Participant left the room");
+    } else {
+      console.log("Participant is not in the room");
+      return;
     }
   } catch (err) {
     console.error(err);
     throw err;
   }
 };
+
 
 const getRoomsByActiveMatchId = async (activeMatchId) => {
   try {
