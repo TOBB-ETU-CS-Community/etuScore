@@ -83,7 +83,7 @@ const Profile = () => {
                 room.roomData.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-              <p>Available Team: {room.roomData.availableTeam}</p>
+              <p>Chosen Team: {room.roomData.creatorsTeam}</p>
 
               <button
                 className={styles.button}
