@@ -184,34 +184,39 @@ const addParticipantToRoom = async (roomId) => {
   try {
     const currentUser = auth.currentUser;
     const roomDocRef = doc(db, "rooms", roomId);
+
+    // Get the room data
+    const roomSnapshot = await getDoc(roomDocRef);
+    const roomData = roomSnapshot.data();
+
+    // Check if the current user is the creator
+    if (roomData.creator === currentUser.uid) {
+      console.log("Creator cannot join the same room");
+      return;
+    }
+
     try {
-      const q = query(
-        collection(db, "users"),
-        where("userId", "==", currentUser?.uid)
-      );
+      const q = query(collection(db, "users"), where("userId", "==", currentUser?.uid));
       const querySnapshot = await getDocs(q);
       const userData = querySnapshot.docs[0].data();
-      // Create a new room for the user with the specified team
-      console.log("Adding  user:", userData.username);
-      await setDoc(
-        roomDocRef,
-        {
-          participant: currentUser.uid,
-          participantName: userData.username,
-        },
-        { merge: true }
-      );
-  
+      
+      // Add the participant to the room
+      console.log("Adding user:", userData.username);
+      await setDoc(roomDocRef, {
+        participant: currentUser.uid,
+        participantName: userData.username,
+      }, { merge: true });
+
       console.log("Participant added to room successfully");
     } catch (err) {
       console.error(err);
     }
-    
   } catch (err) {
     console.error(err);
     throw err;
   }
 };
+
 
 const leaveRoom = async (roomId, participantId) => {
   try {
