@@ -36,7 +36,6 @@ function Dashboard() {
     if (!user) {
       navigate("/");
     } else {
-      fetchUserName();
     }
   }, [user, loading, navigate]);
 
