@@ -1,0 +1,153 @@
+.betpage{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    h2{
+        text-align: center;
+    }
+    form{
+        align-items: center;
+    }
+    
+}
+.roomsPage {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    h2{
+        text-align: center;
+    }
+    form{
+        align-items: center;
+    }
+    button{
+        flex-basis: 20%;
+        max-width: 20%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin: 10px;
+    }
+}
+.rooms{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.room {
+    flex-basis: 20%;
+    max-width: 20%;
+    box-sizing: border-box;
+    margin: 0.5rem;
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+    border-radius: 10px;
+    
+    h3 {
+        text-align: center;
+    }
+    
+    form {
+        align-items: center;
+    }
+    
+    button {
+        flex-basis: 80%;
+        max-width: 80%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin: 10px;
+    }
+    
+    @media screen and (max-width: 480px) {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+    
+    @media screen and (min-width: 481px) and (max-width: 768px) {
+        flex-basis: 25%;
+        max-width: 25%;
+    }
+    
+    @media screen and (min-width: 769px) {
+        flex-basis: 20%;
+        max-width: 20%;
+    }
+}
+
+
+.teams{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.button{
+    width: 100%;
+    margin-top: 1rem;
+}
+.teamview{
+    margin:1rem;
+}
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+.mainPart{
+    width: 100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.teamButtons{
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    margin-top: 20px;
+    button{
+        flex-basis: 80%;
+        max-width: 80%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin: 10px;
+    }
+}
+
+.teama{
+    background-color: green;
+}
+.teamb{
+    background-color: #7B7B7B;
+}
+
+.formRadio{
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    margin-top: 20px;
+    input{
+        margin: 0 10px;
+    }
+}
+
+.hidden {
+    display: none;
+  }

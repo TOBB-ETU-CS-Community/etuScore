@@ -3,6 +3,7 @@ import classes from "./scoreboards-grid.module.scss";
 import Scoreboard from "../Scoreboard";
 import useInterval from "../../hooks/useInterval";
 import MessageBoard from "../MessageBoard";
+import Profile from "../Profile";
 import ScoresReducer, {
   actionTypes,
   initialState,
@@ -210,6 +211,8 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
           dayGlobal={dayGlobal}
           setDayGlobal={setDayGlobal}
         />
+      ) : PageInd === 3 ? (
+        <Profile/>
       ) : (
         <MessageBoard
           message={`Games are about to start in ${timeElapsed} seconds.`}

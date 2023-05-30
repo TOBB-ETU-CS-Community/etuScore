@@ -9,6 +9,9 @@ const Header = ({ PageInd, setPageInd }) => {
   const matches = () => {
     setPageInd(0);
   };
+  const profile = () => {
+    setPageInd(3);
+  };
 
   return (
     <header className="header">
@@ -18,6 +21,9 @@ const Header = ({ PageInd, setPageInd }) => {
       />
       <h2>TOBB World Cup Scoreboard</h2>
       <div className="button-group">
+      <button className="profile" onClick={profile}>
+          My Profile
+        </button>
         <button className="matches" onClick={matches}>
           Matches
         </button>
