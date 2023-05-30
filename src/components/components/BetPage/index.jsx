@@ -8,9 +8,9 @@ import {
   addParticipantToRoom,
   getRoomsByActiveMatchId,
   leaveRoom,
+  checkBalanceIsEnough,
 } from "../../../services/firebase";
 import classes from "./betpage.module.scss";
-import Footer from "../Footer/index.jsx";
 import { auth, db } from "../../../services/firebase";
 function BetPage({
   PageInd,
@@ -26,8 +26,9 @@ function BetPage({
   const [loading, setLoading] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState(pairScoreGlobal.homeTeam.name);
+  const [selectedTeam, setSelectedTeam] = useState();
   const [selectedTeamForm, setSelectedTeamForm] = useState("");
+  const [coin, setCoin] = useState(0);
 
   const handleRoomNameChange = (event) => {
     setRoomName(event.target.value);
@@ -53,7 +54,6 @@ function BetPage({
     }
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
-    event.preventDefault();
     setLoading(true);
      await createRoomForCurrentUser(
       roomName,
@@ -67,10 +67,32 @@ function BetPage({
     await fetchRooms();
     setLoading(false);
   };
+
+  function formControl() {
+    if (roomName === "") {
+      alert("Please enter room name");
+      return false;
+    } else if (selectedTeamForm === "") {
+      alert("Please select team");
+    }
+    else if(checkBalanceIsEnough(coin)){
+      setShowRooms(true);
+      setSelectedTeam();
+      setRoomName("");
+      createBet();
+    }else{
+      alert("You don't have enough coin");
+    }
+
+  }
+
+  const handleCoin = (e) => {
+    setCoin(e.target.value);
+  };
   return (
     <>
       {showRooms === false && (
-        <div className={classes.betpage}>
+        <div className={classes.betpage} >
           <main>
             <h2>Oyun: {pairScoreGlobal.gameId}</h2>
 
@@ -89,7 +111,7 @@ function BetPage({
               </div>
             </div>
             <h2>{dayGlobal}</h2>
-            <form onSubmit={createBet} className={classes.formContainer}>
+            <form className={classes.formContainer} >
               <input
                 type="text"
                 placeholder="Enter room name"
@@ -114,7 +136,13 @@ function BetPage({
                 />
                 {pairScoreGlobal.awayTeam.name}
               </div>
-              <button className={classes.button} type="submit">
+              <label> Bet coin: </label>
+                <input
+                  type="number"
+                  name="coin"
+                  onChange={handleCoin}
+                  ></input>
+              <button className={classes.button} onClick={formControl} >
                 Create Bet
               </button>
             </form>
@@ -136,8 +164,9 @@ function BetPage({
             <button
               className={classes.button}
               onClick={() => setShowRooms(false)}
+              style={{backgroundColor: "red"}}
             >
-              Match İnformation
+              Back
             </button>
             <button
               className={classes.button}
@@ -166,7 +195,7 @@ function BetPage({
                     selectedTeam === room.availableTeam ? "" : classes.hidden
                   }`}
                 >
-                  <h3>{room.name}</h3>
+                  <h3 >{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
@@ -184,6 +213,7 @@ function BetPage({
                         alert("This room is full");
                       }
                     }}
+                    style={{backgroundColor: (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "green":"red"}}
                   >
                     { (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "Join":"Room Full"}
                   </button>
@@ -193,6 +223,7 @@ function BetPage({
                       await leaveRoom(room.id, auth.currentUser.uid);
                       await fetchRooms();
                     }}
+                    style={{backgroundColor: "red"}}
                   >
                     Leave
                   </button>

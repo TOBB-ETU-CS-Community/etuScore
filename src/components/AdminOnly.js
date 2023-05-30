@@ -3,7 +3,7 @@ import { query, collection, getDocs, where, doc } from "firebase/firestore";
 import { auth, db } from "../services/firebase"; // Your firebase service
 import { useAuthState } from "react-firebase-hooks/auth";
 import { saveDataToFirestore, fetchMatchesFireStore,fetchGroupsFireStore } from "../services/firebase";
-import classes from "./AdminOnly.scss";
+import  "./AdminOnly.scss";
 const AdminOnlyComponent = () => {
   const [currentUser, loading, error] = useAuthState(auth);
   const [isAdmin, setIsAdmin] = useState(false);
