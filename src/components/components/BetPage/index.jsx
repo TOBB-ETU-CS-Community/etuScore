@@ -7,7 +7,7 @@ import {
   createRoomForCurrentUser,
   addParticipantToRoom,
   getRoomsByActiveMatchId,
-  leaveRoom
+  leaveRoom,
 } from "../../../services/firebase";
 import classes from "./betpage.module.scss";
 import Footer from "../Footer/index.jsx";
@@ -26,8 +26,14 @@ function BetPage({
   const [loading, setLoading] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(0);
+  const [selectedTeamForm, setSelectedTeamForm] = useState("");
+
   const handleRoomNameChange = (event) => {
     setRoomName(event.target.value);
+  };
+  const handleTeam = (e) => {
+    setSelectedTeamForm(e.target.value);
   };
   const fetchRooms = async () => {
     //fetch rooms from pairScoreGlobal.gameId
@@ -45,14 +51,15 @@ function BetPage({
     if (PageInd === 2) {
       fetchRooms();
     }
-  }, [PageInd]);
+  }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
     event.preventDefault();
     setLoading(true);
     const response = await createRoomForCurrentUser(
       roomName,
-      [],
-      pairScoreGlobal.gameId
+      pairScoreGlobal.gameId,
+      selectedTeamForm,
+      selectedTeamForm === pairScoreGlobal.homeTeam.name ? pairScoreGlobal.awayTeam.name : pairScoreGlobal.homeTeam.name
     );
     console.log(response);
     await fetchRooms();
@@ -88,6 +95,23 @@ function BetPage({
                 onChange={handleRoomNameChange}
                 className={classes.input}
               />
+              <div className={classes.formRadio}>
+                <label>Play Bet To: </label>
+                <input
+                  type="radio"
+                  name="team"
+                  value={pairScoreGlobal.homeTeam.name}
+                  onChange={handleTeam}
+                />
+                {pairScoreGlobal.homeTeam.name}
+                <input
+                  type="radio"
+                  name="team"
+                  value={pairScoreGlobal.awayTeam.name}
+                  onChange={handleTeam}
+                />
+                {pairScoreGlobal.awayTeam.name}
+              </div>
               <button className={classes.button} type="submit">
                 Create Bet
               </button>
@@ -105,8 +129,8 @@ function BetPage({
         </div>
       )}
       {showRooms === true && (
-        <div className={classes.betpage}>
-          <main>
+        <div className={classes.roomsPage}>
+          <main className={classes.mainPart}>
             <button
               className={classes.button}
               onClick={() => setShowRooms(false)}
@@ -119,17 +143,31 @@ function BetPage({
             >
               Reload Rooms
             </button>
+            <div className={classes.teamButtons}>
+              <button
+                className={selectedTeam === 0 ? classes.teama : classes.teamb}
+                onClick={() => setSelectedTeam(0)}
+              >
+                Bet to {pairScoreGlobal.homeTeam.name}
+              </button>
+              <button
+                className={selectedTeam === 1 ? classes.teama : classes.teamb}
+                onClick={() => setSelectedTeam(1)}
+              >
+                Bet to {pairScoreGlobal.awayTeam.name}
+              </button>
+            </div>
             <div className={classes.rooms}>
               {rooms?.map((room) => (
                 <div className={classes.room} key={room.id}>
                   <h3>{room.name}</h3>
-                  <p>Participants: {room.participants.length}</p>
+                  <p>Creator: {room.creatorName}</p>
+                  {(room.participantName!== undefined && room.participantName !== "" && room.participantName !== null )&&(<p>Participant: {room.participantName}</p>)}
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      
-                        await addParticipantToRoom(room.id,auth.currentUser.uid);
-                        await fetchRooms();
+                      await addParticipantToRoom(room.id, auth.currentUser.uid);
+                      await fetchRooms();
                     }}
                   >
                     Join
@@ -137,8 +175,8 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                        await leaveRoom(room.id,auth.currentUser.uid);
-                        await fetchRooms();
+                      await leaveRoom(room.id, auth.currentUser.uid);
+                      await fetchRooms();
                     }}
                   >
                     Leave
