@@ -2,10 +2,10 @@ header {
   width: 100%;
   display: flex;
   background-color: #b3860a;
-  
+
   justify-content: space-between;
   align-items: center;
-  overflow:scroll;
+  overflow: scroll;
 
   h2 {
     font-size: 1.2rem;
@@ -30,9 +30,7 @@ header {
       background-color: #fff;
     }
   }
-  button-group{
+  button-group {
     justify-content: end;
   }
 }
-
-

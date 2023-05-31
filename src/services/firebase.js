@@ -111,6 +111,20 @@ const logout = () => {
   signOut(auth);
 };
 
+const leaderBoard = async () => {
+  const q = query(
+    collection(db, "users"),
+    orderBy("balance", "desc"),
+    limit(10)
+  );
+  const querySnapshot = await getDocs(q);
+  const leaderboard = querySnapshot.docs.map((doc) => {
+    return { username: doc.data().username, balance: doc.data().balance };
+  });
+  return leaderboard;
+};
+
+
 const createRoom = async (
   name,
   creatorName,
@@ -120,7 +134,8 @@ const createRoom = async (
   creator,
   creatorsTeam,
   availableTeam,
-  Startdate
+  Startdate,
+  betAmount
 ) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
@@ -136,6 +151,7 @@ const createRoom = async (
       availableTeam: availableTeam,
       createdAt: serverTimestamp(),
       Startdate: Startdate,
+      betAmount: betAmount,
     });
 
     const roomId = newRoomRef.id;
@@ -146,12 +162,49 @@ const createRoom = async (
   }
 };
 
+async function checkBalanceIsEnough(betAmount) {
+  const currentUser = auth.currentUser;
+  let userData;
+  let querySnapshot;
+  if (currentUser) {
+    const userId = currentUser.uid;
+
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("userId", "==", currentUser?.uid)
+      );
+      querySnapshot = await getDocs(q);
+      userData = querySnapshot.docs[0].data();
+      console.log(userData);
+    } catch (err) {
+      console.log(err);
+    }
+    if(betAmount<0){
+      //add + amount to balance
+      const userDocRef = querySnapshot.docs[0].ref;
+      const newBalance = userData.balance + (betAmount*-1);
+      await updateDoc(userDocRef, { balance: newBalance });
+      return true;
+    }
+    if (userData.balance >= betAmount) {
+      const userDocRef = querySnapshot.docs[0].ref;
+      const newBalance = userData.balance - betAmount;
+      await updateDoc(userDocRef, { balance: newBalance });
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
 const createRoomForCurrentUser = async (
   name,
   matchId,
   team,
   availableTeam,
-  Startdate
+  Startdate,
+  betAmount
 ) => {
   try {
     const currentUser = auth.currentUser;
@@ -178,7 +231,8 @@ const createRoomForCurrentUser = async (
           userId,
           team,
           availableTeam,
-          Startdate
+          Startdate,
+          betAmount
         );
 
         // Add roomId to the bets array of the user
@@ -246,12 +300,13 @@ const addParticipantToRoom = async (roomId) => {
   }
 };
 
-const leaveRoom = async (roomId, participantId) => {
+const leaveRoom = async (roomId, participantId, betAmount) => {
   try {
     const roomDocRef = doc(db, "rooms", roomId);
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
+    checkBalanceIsEnough(-1*betAmount);
 
     if (roomData.creator === participantId) {
       if (roomData.participant) {
@@ -265,13 +320,13 @@ const leaveRoom = async (roomId, participantId) => {
           },
           { merge: true }
         );
-         // Add roomId to the bets array of the user
-         const q = query(collection(db, "users"), auth?.currentUser?.uid);
-         const querySnapshot = await getDocs(q);
-         const userDocRef = querySnapshot.docs[0].ref;
-         await updateDoc(userDocRef, {
-           bets: arrayRemove(roomId),
-         });
+        // Add roomId to the bets array of the user
+        const q = query(collection(db, "users"), auth?.currentUser?.uid);
+        const querySnapshot = await getDocs(q);
+        const userDocRef = querySnapshot.docs[0].ref;
+        await updateDoc(userDocRef, {
+          bets: arrayRemove(roomId),
+        });
 
         console.log("Ownership transferred to participant");
       } else {
@@ -280,9 +335,15 @@ const leaveRoom = async (roomId, participantId) => {
         // Add roomId to the bets array of the user
         const q = query(collection(db, "users"), auth?.currentUser?.uid);
         const querySnapshot = await getDocs(q);
-        const userDocRef = querySnapshot.docs[0].ref;
-        await updateDoc(userDocRef, {
-          bets: arrayRemove(roomId),
+        const userDoc = querySnapshot.docs[0];
+        console.log(roomId)
+        const bets = userDoc.data().bets || [];
+        const index = bets.indexOf(roomId);
+        if (index !== -1) {
+          bets.splice(index, 1);
+        }
+        await updateDoc(userDoc.ref, {
+          bets: bets,
         });
 
         console.log("Room deleted");
@@ -297,13 +358,13 @@ const leaveRoom = async (roomId, participantId) => {
         },
         { merge: true }
       );
-       // Add roomId to the bets array of the user
-       const q = query(collection(db, "users"), auth?.currentUser?.uid);
-       const querySnapshot = await getDocs(q);
-       const userDocRef = querySnapshot.docs[0].ref;
-       await updateDoc(userDocRef, {
-         bets: arrayRemove(roomId),
-       });
+      // Add roomId to the bets array of the user
+      const q = query(collection(db, "users"), auth?.currentUser?.uid);
+      const querySnapshot = await getDocs(q);
+      const userDocRef = querySnapshot.docs[0].ref;
+      await updateDoc(userDocRef, {
+        bets: arrayRemove(roomId),
+      });
 
       console.log("Participant left the room");
     } else {
@@ -333,7 +394,7 @@ const fetchUserBets = async () => {
           const roomDoc = doc(db, "rooms", roomId);
           const roomSnapshot = await getDoc(roomDoc);
           const roomData = roomSnapshot.data();
-          return {roomData, roomId};
+          return { roomData, roomId };
         });
 
         const userBets = await Promise.all(roomPromises);
@@ -350,7 +411,6 @@ const fetchUserBets = async () => {
     throw err;
   }
 };
-
 
 const getRoomsByActiveMatchId = async (activeMatchId) => {
   try {
@@ -482,8 +542,6 @@ async function fetchMatchesFireStore() {
   return matchesData[0];
 }
 
-
-
 export {
   auth,
   db,
@@ -499,5 +557,7 @@ export {
   saveDataToFirestore,
   fetchGroupsFireStore,
   fetchMatchesFireStore,
-  fetchUserBets
+  fetchUserBets,
+  checkBalanceIsEnough,
+  leaderBoard
 };

@@ -12,6 +12,7 @@ const Scoreboard = ({
   setPairScoreGlobal,
   setStatusGlobal,
   setDayGlobal,
+  gameTime,
 }) => {
   let eventDate = pairScore.eventDate.split(".");
   eventDate = eventDate[0] + "." + eventDate[1];
@@ -23,6 +24,15 @@ const Scoreboard = ({
     setDayGlobal(day);
     setPageInd(2);
   };
+  const currDate = new Date();
+  const currDay = currDate.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  console.log(gameTime)
+
   return (
     eventDate === dayDate && (
       <div className={classes.score}>
@@ -34,10 +44,14 @@ const Scoreboard = ({
               awayTeamScore={pairScore.awayTeam.score}
             />
             <GameStatus status={status} />
+            <div className={classes.time}>{gameTime}</div>
           </main>
           <TeamView teamData={pairScore.awayTeam} />
         </section>
+        {(currDay.split(".")[1] < pairScore.eventDate.split(".")[1] || (currDay.split(".")[1] == pairScore.eventDate.split(".")[1] && currDay.split(".")[0] <= pairScore.eventDate.split(".")[0])) && (
         <button onClick={handleClick}>Bet</button>
+        )   
+        }
       </div>
     )
   );

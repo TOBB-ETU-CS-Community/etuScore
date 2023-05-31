@@ -14,6 +14,7 @@ import { areAllGamesFinished, getRandomInt } from "../../utils";
 import useTimeout from "../../hooks/useTimeout";
 import { fetchGroupsFireStore } from "../../../services/firebase";
 import BetPage from "../BetPage";
+import Leaderboard from "../Leaderboard/Leaderboard";
 const TIME_BEFORE_GAMES_START = 0; // seconds
 const PLAYING_TIME = 1800000; // milliseconds
 const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
@@ -130,6 +131,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
       })
     );
   }
+
   return (
     <>
       {timeElapsed === 0 && PageInd === 0 ? (
@@ -153,8 +155,8 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                 setPairScoreGlobal={setPairScoreGlobal}
                 setStatusGlobal={setStatusGlobal}
                 setDayGlobal={setDayGlobal}
-                //change date format to dd.mm.yyyy
                 status={getGameStatus(pairScore.startedGame)}
+                gameTime={pairScore.gameTime}
               />
             ))}
           </div>
@@ -212,7 +214,9 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
           setDayGlobal={setDayGlobal}
         />
       ) : PageInd === 3 ? (
-        <Profile/>
+        <Profile pairScoreGlobal={pairScoreGlobal} />
+      ) : PageInd === 4 ? (
+        <Leaderboard />
       ) : (
         <MessageBoard
           message={`Games are about to start in ${timeElapsed} seconds.`}

@@ -12,6 +12,9 @@ const Header = ({ PageInd, setPageInd }) => {
   const profile = () => {
     setPageInd(3);
   };
+  const leaderboard = () => {
+    setPageInd(4);
+  }
 
   return (
     <header className="header">
@@ -29,6 +32,9 @@ const Header = ({ PageInd, setPageInd }) => {
         </button>
         <button className="groups" onClick={groups}>
           Groups
+        </button>
+        <button className="leaderboard" onClick={leaderboard}>
+          Leaderboard
         </button>
         <button className="logout" onClick={logout}>
           Logout

@@ -8,9 +8,9 @@ import {
   addParticipantToRoom,
   getRoomsByActiveMatchId,
   leaveRoom,
+  checkBalanceIsEnough,
 } from "../../../services/firebase";
 import classes from "./betpage.module.scss";
-import Footer from "../Footer/index.jsx";
 import { auth, db } from "../../../services/firebase";
 function BetPage({
   PageInd,
@@ -26,8 +26,9 @@ function BetPage({
   const [loading, setLoading] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [selectedTeam, setSelectedTeam] = useState(pairScoreGlobal.homeTeam.name);
+  const [selectedTeam, setSelectedTeam] = useState();
   const [selectedTeamForm, setSelectedTeamForm] = useState("");
+  const [coin, setCoin] = useState(0);
 
   const handleRoomNameChange = (event) => {
     setRoomName(event.target.value);
@@ -53,26 +54,64 @@ function BetPage({
     }
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
-    event.preventDefault();
     setLoading(true);
-     await createRoomForCurrentUser(
+    await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
       selectedTeamForm,
       selectedTeamForm === pairScoreGlobal.homeTeam.name
         ? pairScoreGlobal.awayTeam.name
         : pairScoreGlobal.homeTeam.name,
-        pairScoreGlobal.eventDate
+      pairScoreGlobal.eventDate,
+      coin
     );
     await fetchRooms();
     setLoading(false);
   };
+
+  function formControl() {
+    if (roomName === "") {
+      alert("Please enter room name");
+      return false;
+    } else if (selectedTeamForm === "") {
+      alert("Please select team");
+    } else if (checkBalanceIsEnough(coin)) {
+      createBet();
+      setShowRooms(true);
+      setSelectedTeam();
+      setRoomName("");
+    } else {
+      alert("You don't have enough coin");
+    }
+  }
+
+  const currDate = new Date();
+  const currDay = currDate.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  
+  const currTime = currDate.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }); 
+  
+  
+console.log(pairScoreGlobal.gameTime)    
+  const handleCoin = (e) => {
+    setCoin(e.target.value);
+  };
+
+  console.log(pairScoreGlobal)
   return (
     <>
       {showRooms === false && (
         <div className={classes.betpage}>
           <main>
             <h2>Oyun: {pairScoreGlobal.gameId}</h2>
+            <h2>Match Day: {dayGlobal}</h2>
 
             <div className={classes.teams}>
               <div className={classes.teamview}>
@@ -88,8 +127,8 @@ function BetPage({
                 <TeamView teamData={pairScoreGlobal.awayTeam} />
               </div>
             </div>
-            <h2>{dayGlobal}</h2>
-            <form onSubmit={createBet} className={classes.formContainer}>
+            <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
+            <form className={classes.formContainer}>
               <input
                 type="text"
                 placeholder="Enter room name"
@@ -114,7 +153,9 @@ function BetPage({
                 />
                 {pairScoreGlobal.awayTeam.name}
               </div>
-              <button className={classes.button} type="submit">
+              <label> Bet coin: </label>
+              <input type="number" name="coin" onChange={handleCoin}></input>
+              <button className={classes.button} onClick={formControl}>
                 Create Bet
               </button>
             </form>
@@ -136,8 +177,9 @@ function BetPage({
             <button
               className={classes.button}
               onClick={() => setShowRooms(false)}
+              style={{ backgroundColor: "red" }}
             >
-              Match İnformation
+              Back
             </button>
             <button
               className={classes.button}
@@ -147,13 +189,21 @@ function BetPage({
             </button>
             <div className={classes.teamButtons}>
               <button
-                className={selectedTeam === pairScoreGlobal.homeTeam.name ? classes.teama : classes.teamb}
+                className={
+                  selectedTeam === pairScoreGlobal.homeTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
                 onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
               >
                 Bet to {pairScoreGlobal.homeTeam.name}
               </button>
               <button
-                className={selectedTeam === pairScoreGlobal.awayTeam.name ? classes.teama : classes.teamb}
+                className={
+                  selectedTeam === pairScoreGlobal.awayTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
                 onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
               >
                 Bet to {pairScoreGlobal.awayTeam.name}
@@ -166,7 +216,7 @@ function BetPage({
                     selectedTeam === room.availableTeam ? "" : classes.hidden
                   }`}
                 >
-                  <h3>{room.name}</h3>
+                  <h3>{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
@@ -177,25 +227,50 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      if(room.participantName === undefined || room.participantName === "" || room.participantName === null){
-                        await addParticipantToRoom(room.id, auth.currentUser.uid);
-                        await fetchRooms();
-                      }else {
+                      if (
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                      ) {
+                        if (checkBalanceIsEnough(room.coin)) {
+                          await addParticipantToRoom(
+                            room.id,
+                            auth.currentUser.uid
+                          );
+                          await fetchRooms();
+                        }
+                      } else {
                         alert("This room is full");
                       }
                     }}
+                    style={{
+                      backgroundColor:
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                          ? "green"
+                          : "red",
+                    }}
                   >
-                    { (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "Join":"Room Full"}
+                    {room.participantName === undefined ||
+                    room.participantName === "" ||
+                    room.participantName === null
+                      ? "Join"
+                      : "Room Full"}
                   </button>
+                  {/* date and clock is not started */}
+                  {((currTime>=pairScoreGlobal.gameTime && currDay.split(".")[1] == pairScoreGlobal.eventDate.split(".")[1] && currDay.split(".")[0] == pairScoreGlobal.eventDate.split(".")[0]) ) && 
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      await leaveRoom(room.id, auth.currentUser.uid);
+                      await leaveRoom(room.id, auth.currentUser.uid, coin);
                       await fetchRooms();
                     }}
+                    style={{ backgroundColor: "red" }}
                   >
                     Leave
                   </button>
+                  }
                 </div>
               ))}
             </div>

@@ -102,6 +102,7 @@ export const fetchMatches = async () => {
   try {
     const response = await fetchMatchesFireStore();
     const matches = response.data;
+    console.log(response.data)
     const games = matches.map((match, index) => {
       if (Object.keys(match).length < 7) {
         return {
@@ -118,6 +119,7 @@ export const fetchMatches = async () => {
             countryCode: "mx",
             score: 0, // Parse the away score as an integer
           },
+          gameTime: match.time,
         };
       }
       const score = match.result; // Event Result
