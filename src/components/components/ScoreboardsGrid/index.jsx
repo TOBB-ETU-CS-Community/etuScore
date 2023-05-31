@@ -212,7 +212,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
           setDayGlobal={setDayGlobal}
         />
       ) : PageInd === 3 ? (
-        <Profile />
+        <Profile pairScoreGlobal={pairScoreGlobal} />
       ) : PageInd === 4 ? (
         <Leaderboard />
       ) : (

@@ -134,7 +134,8 @@ const createRoom = async (
   creator,
   creatorsTeam,
   availableTeam,
-  Startdate
+  Startdate,
+  betAmount
 ) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
@@ -150,6 +151,7 @@ const createRoom = async (
       availableTeam: availableTeam,
       createdAt: serverTimestamp(),
       Startdate: Startdate,
+      betAmount: betAmount,
     });
 
     const roomId = newRoomRef.id;
@@ -201,7 +203,8 @@ const createRoomForCurrentUser = async (
   matchId,
   team,
   availableTeam,
-  Startdate
+  Startdate,
+  betAmount
 ) => {
   try {
     const currentUser = auth.currentUser;
@@ -228,7 +231,8 @@ const createRoomForCurrentUser = async (
           userId,
           team,
           availableTeam,
-          Startdate
+          Startdate,
+          betAmount
         );
 
         // Add roomId to the bets array of the user
@@ -296,12 +300,13 @@ const addParticipantToRoom = async (roomId) => {
   }
 };
 
-const leaveRoom = async (roomId, participantId) => {
+const leaveRoom = async (roomId, participantId, betAmount) => {
   try {
     const roomDocRef = doc(db, "rooms", roomId);
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
+    checkBalanceIsEnough(-1*betAmount);
 
     if (roomData.creator === participantId) {
       if (roomData.participant) {
@@ -337,7 +342,6 @@ const leaveRoom = async (roomId, participantId) => {
         if (index !== -1) {
           bets.splice(index, 1);
         }
-        //deleting bet from user below code doesnt work
         await updateDoc(userDoc.ref, {
           bets: bets,
         });

@@ -55,35 +55,35 @@ function BetPage({
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
     setLoading(true);
-     await createRoomForCurrentUser(
+    await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
       selectedTeamForm,
       selectedTeamForm === pairScoreGlobal.homeTeam.name
         ? pairScoreGlobal.awayTeam.name
         : pairScoreGlobal.homeTeam.name,
-        pairScoreGlobal.eventDate
+      pairScoreGlobal.eventDate,
+      coin
     );
     await fetchRooms();
     setLoading(false);
   };
 
   function formControl() {
+    console.log("tiktik");
     if (roomName === "") {
       alert("Please enter room name");
       return false;
     } else if (selectedTeamForm === "") {
       alert("Please select team");
-    }
-    else if(checkBalanceIsEnough(coin)){
+    } else if (checkBalanceIsEnough(coin)) {
+      createBet();
       setShowRooms(true);
       setSelectedTeam();
       setRoomName("");
-      createBet();
-    }else{
+    } else {
       alert("You don't have enough coin");
     }
-
   }
 
   const handleCoin = (e) => {
@@ -92,7 +92,7 @@ function BetPage({
   return (
     <>
       {showRooms === false && (
-        <div className={classes.betpage} >
+        <div className={classes.betpage}>
           <main>
             <h2>Oyun: {pairScoreGlobal.gameId}</h2>
 
@@ -111,7 +111,7 @@ function BetPage({
               </div>
             </div>
             <h2>{dayGlobal}</h2>
-            <form className={classes.formContainer} >
+            <form className={classes.formContainer}>
               <input
                 type="text"
                 placeholder="Enter room name"
@@ -137,12 +137,8 @@ function BetPage({
                 {pairScoreGlobal.awayTeam.name}
               </div>
               <label> Bet coin: </label>
-                <input
-                  type="number"
-                  name="coin"
-                  onChange={handleCoin}
-                  ></input>
-              <button className={classes.button} onClick={formControl} >
+              <input type="number" name="coin" onChange={handleCoin}></input>
+              <button className={classes.button} onClick={formControl}>
                 Create Bet
               </button>
             </form>
@@ -164,7 +160,7 @@ function BetPage({
             <button
               className={classes.button}
               onClick={() => setShowRooms(false)}
-              style={{backgroundColor: "red"}}
+              style={{ backgroundColor: "red" }}
             >
               Back
             </button>
@@ -176,13 +172,21 @@ function BetPage({
             </button>
             <div className={classes.teamButtons}>
               <button
-                className={selectedTeam === pairScoreGlobal.homeTeam.name ? classes.teama : classes.teamb}
+                className={
+                  selectedTeam === pairScoreGlobal.homeTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
                 onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
               >
                 Bet to {pairScoreGlobal.homeTeam.name}
               </button>
               <button
-                className={selectedTeam === pairScoreGlobal.awayTeam.name ? classes.teama : classes.teamb}
+                className={
+                  selectedTeam === pairScoreGlobal.awayTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
                 onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
               >
                 Bet to {pairScoreGlobal.awayTeam.name}
@@ -195,7 +199,7 @@ function BetPage({
                     selectedTeam === room.availableTeam ? "" : classes.hidden
                   }`}
                 >
-                  <h3 >{room.name.toUpperCase()}</h3>
+                  <h3>{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
@@ -206,24 +210,44 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      if(room.participantName === undefined || room.participantName === "" || room.participantName === null){
-                        await addParticipantToRoom(room.id, auth.currentUser.uid);
-                        await fetchRooms();
-                      }else {
+                      if (
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                      ) {
+                        if (checkBalanceIsEnough(room.coin)) {
+                          await addParticipantToRoom(
+                            room.id,
+                            auth.currentUser.uid
+                          );
+                          await fetchRooms();
+                        }
+                      } else {
                         alert("This room is full");
                       }
                     }}
-                    style={{backgroundColor: (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "green":"red"}}
+                    style={{
+                      backgroundColor:
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                          ? "green"
+                          : "red",
+                    }}
                   >
-                    { (room.participantName === undefined || room.participantName === "" || room.participantName === null) ? "Join":"Room Full"}
+                    {room.participantName === undefined ||
+                    room.participantName === "" ||
+                    room.participantName === null
+                      ? "Join"
+                      : "Room Full"}
                   </button>
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      await leaveRoom(room.id, auth.currentUser.uid);
+                      await leaveRoom(room.id, auth.currentUser.uid, coin);
                       await fetchRooms();
                     }}
-                    style={{backgroundColor: "red"}}
+                    style={{ backgroundColor: "red" }}
                   >
                     Leave
                   </button>
