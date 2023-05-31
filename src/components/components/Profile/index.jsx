@@ -76,14 +76,14 @@ const Profile = () => {
                 playedBets === 0 ? "" : styles.hidden
               }`}
             >
-              <h3>{room.roomData.name}</h3>
-              <p>Creator: {room.roomData.creatorName}</p>
-              {room.roomData.participantName !== undefined &&
-                room.roomData.participantName !== "" &&
-                room.roomData.participantName !== null && (
+              <h3>{room.roomData?.name}</h3>
+              <p>Creator: {room.roomData?.creatorName || ""}</p>
+              {room.roomData?.participantName !== undefined &&
+                room.roomData?.participantName !== "" &&
+                room.roomData?.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-              <p>Chosen Team: {room.roomData.creatorsTeam}</p>
+              <p>Chosen Team: {room.roomData?.creatorsTeam}</p>
 
               <button
                 className={styles.button}

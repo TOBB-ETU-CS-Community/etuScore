@@ -112,7 +112,6 @@ const logout = () => {
 };
 
 const leaderBoard = async () => {
-  //get the leaderboard from users collection and return it with only the username and balance with object
   const q = query(
     collection(db, "users"),
     orderBy("balance", "desc"),
@@ -331,9 +330,16 @@ const leaveRoom = async (roomId, participantId) => {
         // Add roomId to the bets array of the user
         const q = query(collection(db, "users"), auth?.currentUser?.uid);
         const querySnapshot = await getDocs(q);
-        const userDocRef = querySnapshot.docs[0].ref;
-        await updateDoc(userDocRef, {
-          bets: arrayRemove(roomId),
+        const userDoc = querySnapshot.docs[0];
+        console.log(roomId)
+        const bets = userDoc.data().bets || [];
+        const index = bets.indexOf(roomId);
+        if (index !== -1) {
+          bets.splice(index, 1);
+        }
+        //deleting bet from user below code doesnt work
+        await updateDoc(userDoc.ref, {
+          bets: bets,
         });
 
         console.log("Room deleted");
