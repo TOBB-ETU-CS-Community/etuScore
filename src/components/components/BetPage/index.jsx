@@ -70,7 +70,6 @@ function BetPage({
   };
 
   function formControl() {
-    console.log("tiktik");
     if (roomName === "") {
       alert("Please enter room name");
       return false;
@@ -86,15 +85,33 @@ function BetPage({
     }
   }
 
+  const currDate = new Date();
+  const currDay = currDate.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  
+  const currTime = currDate.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }); 
+  
+  
+console.log(pairScoreGlobal.gameTime)    
   const handleCoin = (e) => {
     setCoin(e.target.value);
   };
+
+  console.log(pairScoreGlobal)
   return (
     <>
       {showRooms === false && (
         <div className={classes.betpage}>
           <main>
             <h2>Oyun: {pairScoreGlobal.gameId}</h2>
+            <h2>Match Day: {dayGlobal}</h2>
 
             <div className={classes.teams}>
               <div className={classes.teamview}>
@@ -110,7 +127,7 @@ function BetPage({
                 <TeamView teamData={pairScoreGlobal.awayTeam} />
               </div>
             </div>
-            <h2>{dayGlobal}</h2>
+            <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
             <form className={classes.formContainer}>
               <input
                 type="text"
@@ -241,6 +258,8 @@ function BetPage({
                       ? "Join"
                       : "Room Full"}
                   </button>
+                  {/* date and clock is not started */}
+                  {((currTime>=pairScoreGlobal.gameTime && currDay.split(".")[1] == pairScoreGlobal.eventDate.split(".")[1] && currDay.split(".")[0] == pairScoreGlobal.eventDate.split(".")[0]) ) && 
                   <button
                     className={classes.button}
                     onClick={async () => {
@@ -251,6 +270,7 @@ function BetPage({
                   >
                     Leave
                   </button>
+                  }
                 </div>
               ))}
             </div>

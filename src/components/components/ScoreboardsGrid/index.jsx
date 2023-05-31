@@ -131,6 +131,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
       })
     );
   }
+
   return (
     <>
       {timeElapsed === 0 && PageInd === 0 ? (
@@ -155,6 +156,7 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                 setStatusGlobal={setStatusGlobal}
                 setDayGlobal={setDayGlobal}
                 status={getGameStatus(pairScore.startedGame)}
+                gameTime={pairScore.gameTime}
               />
             ))}
           </div>
