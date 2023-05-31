@@ -154,7 +154,6 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
                 setPairScoreGlobal={setPairScoreGlobal}
                 setStatusGlobal={setStatusGlobal}
                 setDayGlobal={setDayGlobal}
-                //change date format to dd.mm.yyyy
                 status={getGameStatus(pairScore.startedGame)}
               />
             ))}
