@@ -218,12 +218,14 @@ console.log(pairScoreGlobal.gameTime)
                 >
                   <h3>{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
+                  <p style={{color:"green"}}>Available Team: {room.availableTeam}</p>
+                  <o style={{color:"red"}}>Against Team:{room.creatorsTeam}</o>
+                  <p style={{color:"yellow"}}>Bet amount: {room.betAmount}🫘</p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
                     room.participantName !== null && (
                       <p>Participant: {room.participantName}</p>
                     )}
-                  <p>Available Team: {room.availableTeam}</p>
                   <button
                     className={classes.button}
                     onClick={async () => {

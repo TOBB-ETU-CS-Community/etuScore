@@ -4,7 +4,7 @@ import { db, fetchUserBets, leaveRoom, auth } from "../../../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 
-const Profile = ({pairScoreGlobal}) => {
+const Profile = ({ pairScoreGlobal }) => {
   const [user, loading, error] = useAuthState(auth);
   const [userBets, setUserBets] = useState([]);
   const [balance, setBalance] = useState(0);
@@ -15,9 +15,12 @@ const Profile = ({pairScoreGlobal}) => {
   };
 
   const fetchMatchTime = async (matchId) => {
-    const q = query(collection(db, "matches"), where("matchNumber", "==", matchId));
+    const q = query(
+      collection(db, "matches"),
+      where("matchNumber", "==", matchId)
+    );
     const querySnapshot = await getDocs(q);
-  
+
     if (!querySnapshot.empty) {
       const matchData = querySnapshot.docs[0].data();
       return matchData.matchTime;
@@ -26,8 +29,6 @@ const Profile = ({pairScoreGlobal}) => {
       return "No match data found";
     }
   };
-  
-    
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -52,12 +53,11 @@ const Profile = ({pairScoreGlobal}) => {
   }, [user?.uid]);
 
   const currDate = new Date();
-    const currTime = currDate.toLocaleTimeString("tr-TR", {
+  const currTime = currDate.toLocaleTimeString("tr-TR", {
     hour: "2-digit",
     minute: "2-digit",
-  }); 
+  });
 
-  
   const currDay = currDate.toLocaleDateString("tr-TR", {
     day: "2-digit",
     month: "2-digit",
@@ -92,18 +92,23 @@ const Profile = ({pairScoreGlobal}) => {
             >
               <h3>{room.roomData?.name}</h3>
               <p>Creator: {room.roomData?.creatorName || ""}</p>
+              <p style={{ color: "green" }}>Available Team: {room.roomData.availableTeam} </p>
+              <p style={{ color: "red" }}>Against Team:{room.roomData.creatorsTeam}</p>
+              <p style={{ color: "yellow" }}>Bet amount: {room.roomData.betAmount}🫘</p>
               {room.roomData?.participantName !== undefined &&
                 room.roomData?.participantName !== "" &&
                 room.roomData?.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-              <p>Chosen Team: {room.roomData?.creatorsTeam}</p>
-
               {console.log(fetchMatchTime(room.roomData.matchId))}
               <button
                 className={styles.button}
                 onClick={async () => {
-                  await leaveRoom(room.roomId, auth.currentUser.uid, (room.roomData.betAmount));
+                  await leaveRoom(
+                    room.roomId,
+                    auth.currentUser.uid,
+                    room.roomData.betAmount
+                  );
                   await fetchUserBetsLocal();
                 }}
               >
