@@ -259,7 +259,7 @@ console.log(pairScoreGlobal.gameTime)
                       : "Room Full"}
                   </button>
                   {/* date and clock is not started */}
-                  {((currTime>=pairScoreGlobal.gameTime && currDay.split(".")[1] == pairScoreGlobal.eventDate.split(".")[1] && currDay.split(".")[0] == pairScoreGlobal.eventDate.split(".")[0]) ) && 
+                  {(pairScoreGlobal.participantName!="" &&(currTime>=pairScoreGlobal.gameTime && currDay.split(".")[1] >= pairScoreGlobal.eventDate.split(".")[1] && currDay.split(".")[0] >= pairScoreGlobal.eventDate.split(".")[0]) ) && 
                   <button
                     className={classes.button}
                     onClick={async () => {

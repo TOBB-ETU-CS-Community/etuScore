@@ -14,6 +14,21 @@ const Profile = ({pairScoreGlobal}) => {
     setUserBets(userBets);
   };
 
+  const fetchMatchTime = async (matchId) => {
+    const q = query(collection(db, "matches"), where("matchNumber", "==", matchId));
+    const querySnapshot = await getDocs(q);
+  
+    if (!querySnapshot.empty) {
+      const matchData = querySnapshot.docs[0].data();
+      return matchData.matchTime;
+    } else {
+      // Handle case when no matching document is found
+      return "No match data found";
+    }
+  };
+  
+    
+
   useEffect(() => {
     const fetchBalance = async () => {
       try {
@@ -30,13 +45,24 @@ const Profile = ({pairScoreGlobal}) => {
     };
     const fetchUserBetsLocal = async () => {
       const userBetsF = await fetchUserBets();
-      console.log(userBetsF);
       setUserBets(userBetsF);
     };
     fetchUserBetsLocal();
     fetchBalance();
   }, [user?.uid]);
 
+  const currDate = new Date();
+    const currTime = currDate.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }); 
+
+  
+  const currDay = currDate.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   return (
     <div className={styles.roomsPage}>
@@ -73,10 +99,10 @@ const Profile = ({pairScoreGlobal}) => {
                 )}
               <p>Chosen Team: {room.roomData?.creatorsTeam}</p>
 
+              {console.log(fetchMatchTime(room.roomData.matchId))}
               <button
                 className={styles.button}
                 onClick={async () => {
-                  console.log(room.roomData.betAmount);
                   await leaveRoom(room.roomId, auth.currentUser.uid, (room.roomData.betAmount));
                   await fetchUserBetsLocal();
                 }}
