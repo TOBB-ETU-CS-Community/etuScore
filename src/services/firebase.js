@@ -134,6 +134,7 @@ const createRoom = async (
   creator,
   creatorsTeam,
   availableTeam,
+  pairScore,
   Startdate,
   betAmount
 ) => {
@@ -152,6 +153,9 @@ const createRoom = async (
       createdAt: serverTimestamp(),
       Startdate: Startdate,
       betAmount: betAmount,
+      gameFinished: false,
+      score: pairScore,
+      roomId: generateRandomRoomId(10),
     });
 
     const roomId = newRoomRef.id;
@@ -161,6 +165,19 @@ const createRoom = async (
     throw err;
   }
 };
+
+function generateRandomRoomId(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let roomId = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    roomId += characters.charAt(randomIndex);
+  }
+
+  return roomId;
+}
+
 
 async function checkBalanceIsEnough(betAmount) {
   const currentUser = auth.currentUser;
@@ -203,6 +220,7 @@ const createRoomForCurrentUser = async (
   matchId,
   team,
   availableTeam,
+  pairScore,
   Startdate,
   betAmount
 ) => {
@@ -231,6 +249,7 @@ const createRoomForCurrentUser = async (
           userId,
           team,
           availableTeam,
+          pairScore,
           Startdate,
           betAmount
         );
@@ -433,6 +452,94 @@ const getRoomsByActiveMatchId = async (activeMatchId) => {
     throw err;
   }
 };
+
+//control all rooms from firebase for gameFinished false, if score is 2-0 2-1 find the user from creator or 0-2 1-2 find the user from participant and add their balance to betAmount*2
+const returnBets = async() => {
+  try {
+    const roomsCollectionRef = collection(db, "rooms");
+    const querySnapshot = await getDocs(
+      query(roomsCollectionRef, where("gameFinished", "==", false))
+    );
+    const rooms = querySnapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
+    });
+    console.log(rooms)
+    //for every room find the creator and participant
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i];
+      const creator = room.creator;
+      const participant = room.participant;
+      const betAmount = room.betAmount;
+      const matchId = room.matchId;
+      const match = await getMatchById(matchId);
+      const matchScore = match.score;
+      const matchScoreArray = matchScore.split('-');
+      //if match score is 2-0 or 2-1
+      if (matchScoreArray[0] === '2') {
+        //find the user from creator
+        const creatorUser = await getUserById(creator);
+        const creatorBalance = creatorUser.balance;
+        const newCreatorBalance = creatorBalance + betAmount*2;
+        await updateDoc(creatorUser.ref, {
+          balance: newCreatorBalance,
+        });
+        //set gameFinished to true
+        await updateDoc(room.ref, {
+          gameFinished: true,
+        });
+      } else if (matchScoreArray[1] === '2') {
+        //find the user from participant
+        const participantUser = await getUserById(participant);
+        const participantBalance = participantUser.balance;
+        const newParticipantBalance = participantBalance + betAmount*2;
+        await updateDoc(participantUser.ref, {
+          balance: newParticipantBalance,
+        });
+        //set gameFinished to true
+        await updateDoc(room.ref, {
+          gameFinished: true,
+        });
+      }
+    }
+
+      
+  }catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+const getMatchById = async (matchId) => {
+  try {
+    const matchDoc = doc(db, "matches", matchId);
+    const matchSnapshot = await getDoc(matchDoc);
+    const matchData = matchSnapshot.data();
+    return matchData;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const getUserById = async (userId) => {
+  try {
+    const userDoc = doc(db, "users", userId);
+    const userSnapshot = await getDoc(userDoc);
+    const userData = userSnapshot.data();
+    return userData;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+      
+        
+
+
+
 async function saveDataToFirestore() {
   try {
     const matchesData = await SheetsService.fetchMatches();
@@ -559,5 +666,6 @@ export {
   fetchMatchesFireStore,
   fetchUserBets,
   checkBalanceIsEnough,
-  leaderBoard
+  leaderBoard,
+  returnBets
 };

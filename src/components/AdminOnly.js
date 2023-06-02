@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { query, collection, getDocs, where, doc } from "firebase/firestore";
-import { auth, db } from "../services/firebase"; // Your firebase service
+import { auth, db, returnBets } from "../services/firebase"; // Your firebase service
 import { useAuthState } from "react-firebase-hooks/auth";
 import { saveDataToFirestore, fetchMatchesFireStore,fetchGroupsFireStore } from "../services/firebase";
 import  "./AdminOnly.scss";
@@ -31,6 +31,7 @@ const AdminOnlyComponent = () => {
         <button  onClick={saveDataToFirestore}> Save Sheets To FireStore</button>
         <button onClick={fetchMatchesFireStore}> fetchMatches from FireStore</button>
         <button onClick={fetchGroupsFireStore}> fetchGroups from FireStore</button>
+        <button onClick={returnBets}> returnBets</button>
       </div>
     );
   } else {
