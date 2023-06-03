@@ -68,14 +68,15 @@ function BetPage({
     setLoading(false);
   };
 
-  function formControl(e) {
+  async function formControl(e) {
     e.preventDefault();
     if (roomName === "") {
       alert("Please enter room name");
       return false;
     } else if (selectedTeamForm === "") {
       alert("Please select team");
-    } else if (checkBalanceIsEnough(coin)) {
+    } else if (await checkBalanceIsEnough(coin)) {
+      console.log("coin", coin);
       createBet();
       setShowRooms(true);
       setSelectedTeam(

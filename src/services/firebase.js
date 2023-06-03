@@ -252,11 +252,13 @@ async function checkBalanceIsEnough(betAmount) {
       return true;
     }
     if (userData.balance >= betAmount) {
+      console.log(userData.balance, betAmount)
       const userDocRef = querySnapshot.docs[0].ref;
       const newBalance = userData.balance - betAmount;
       await updateDoc(userDocRef, { balance: newBalance });
       return true;
     } else {
+      console.log("Not enough balance");
       return false;
     }
   }
