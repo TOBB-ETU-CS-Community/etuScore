@@ -84,8 +84,8 @@ const Profile = ({ pairScoreGlobal }) => {
                 room.roomData?.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-                {room.roomData.participant == undefined ||
-                room.roomData.participant == "" && (
+                {(room.roomData.participant === undefined ||
+                room.roomData.participant === "") && (
               <button
                 className={styles.button}
                 onClick={async () => {

@@ -1,12 +1,4 @@
 import { initializeApp } from "firebase/app";
-import {
-  collection,
-  doc,
-  setDoc,
-  orderBy,
-  limit,
-  serverTimestamp,
-} from "firebase/firestore";
 
 import {
   GoogleAuthProvider,
@@ -18,6 +10,12 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import {
+  collection,
+  doc,
+  setDoc,
+  orderBy,
+  limit,
+  serverTimestamp,
   getFirestore,
   query,
   getDocs,
@@ -230,7 +228,7 @@ const createRoomForCurrentUser = async (
         );
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-          console.log("userData", userData);
+        console.log("userData", userData);
         console.log("Creating room for user:", userData.username);
 
         const roomId = await createRoom(
@@ -269,21 +267,23 @@ const createRoomForCurrentUser = async (
 
 const addParticipantToRoom = async (roomId) => {
   try {
-    const currentUser = auth.currentUser;
+    const currentUser = auth?.currentUser;
     const roomDocRef = doc(db, "rooms", roomId);
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
-
     if (roomData.creator === currentUser.uid) {
       console.log("Creator cannot join the same room");
       return;
     }
 
     try {
-      const q = query(collection(db, "users"), currentUser?.uid);
-      const querySnapshot = await getDoc(q);
-      const userData = querySnapshot.data();
+      const q = query(
+        collection(db, "users"),
+        where("userId", "==", currentUser?.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      const userData = querySnapshot.docs[0].data();
       console.log("Adding user:", userData.username);
 
       await setDoc(
@@ -317,9 +317,10 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
-    checkBalanceIsEnough(-1 * betAmount);
 
     if (roomData.creator === participantId) {
+      checkBalanceIsEnough(-1 * betAmount);
+
       if (roomData.participant) {
         await setDoc(
           roomDocRef,
@@ -332,7 +333,10 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
           { merge: true }
         );
         // Add roomId to the bets array of the user
-        const q = query(collection(db, "users"), auth?.currentUser?.uid);
+        const q = query(
+          collection(db, "users"),
+          where("userId", "==", auth?.currentUser?.uid)
+        );
         const querySnapshot = await getDocs(q);
         const userDocRef = querySnapshot.docs[0].ref;
         await updateDoc(userDocRef, {
@@ -343,23 +347,24 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
       } else {
         await deleteDoc(roomDocRef);
 
-        // Add roomId to the bets array of the user
-        const q = query(collection(db, "users"), auth?.currentUser?.uid);
+        // remove roomId from the bets array of the user
+        const q = query(
+          collection(db, "users"),
+          where("userId", "==", auth?.currentUser?.uid)
+        );
         const querySnapshot = await getDocs(q);
-        const userDoc = querySnapshot.docs[0];
-        const bets = userDoc.data().bets || [];
-        const index = bets.indexOf(roomId);
-        if (index !== -1) {
-          bets.splice(index, 1);
-        }
-        await updateDoc(userDoc.ref, {
-          bets: bets,
+        const userDocRef = querySnapshot.docs[0].ref;
+
+        await updateDoc(userDocRef, {
+          bets: arrayRemove(roomId),
         });
 
         console.log("Room deleted");
         return;
       }
     } else if (roomData.participant === participantId) {
+      checkBalanceIsEnough(-1 * betAmount);
+
       await setDoc(
         roomDocRef,
         {
@@ -368,10 +373,15 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
         },
         { merge: true }
       );
-      // Add roomId to the bets array of the user
-      const q = query(collection(db, "users"), auth?.currentUser?.uid);
+
+      // remove roomId from the bets array of the user
+      const q = query(
+        collection(db, "users"),
+        where("userId", "==", auth?.currentUser?.uid)
+      );
       const querySnapshot = await getDocs(q);
       const userDocRef = querySnapshot.docs[0].ref;
+
       await updateDoc(userDocRef, {
         bets: arrayRemove(roomId),
       });
@@ -529,7 +539,7 @@ const getMatchScoreById = async (matchId) => {
       const matchNumber = match[0];
       return {
         matchNumber: matchNumber,
-        result : ["0", "0", "0"],
+        result: ["0", "0", "0"],
       };
     }
   });
@@ -576,17 +586,14 @@ const getMatchTimeById = async (matchId) => {
   return match.time;
 };
 
-      
-
 const getUserById = async (userId) => {
   const q = query(collection(db, "users"), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
   const documentSnapshot = querySnapshot.docs[0];
-  console.log(documentSnapshot.ref)
+  console.log(documentSnapshot.ref);
   const userData = documentSnapshot.data();
   return { ...userData, ref: documentSnapshot.ref };
 };
-
 
 async function saveDataToFirestore() {
   try {

@@ -214,11 +214,12 @@ function BetPage({
                   className={`${classes.room} ${
                     selectedTeam === room.availableTeam ? "" : classes.hidden
                   }`}
+                  key={room.id}
                 >
                   <h3>{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
                   <p style={{color:"green"}}>Available Team: {room.availableTeam}</p>
-                  <o style={{color:"red"}}>Against Team:{room.creatorsTeam}</o>
+                  <o style={{color:"red"}}>Against Team: {room.creatorsTeam}</o>
                   <p style={{color:"yellow"}}>Bet amount: {room.betAmount}🫘</p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
@@ -233,7 +234,7 @@ function BetPage({
                         room.participantName === "" ||
                         room.participantName === null
                       ) {
-                        if (checkBalanceIsEnough(room.coin)) {
+                        if (checkBalanceIsEnough(room.betAmount)) {
                           await addParticipantToRoom(
                             room.id,
                             auth.currentUser.uid
@@ -264,7 +265,7 @@ function BetPage({
                   <button
                     className={classes.button}
                     onClick={async () => {
-                      await leaveRoom(room.id, auth.currentUser.uid, coin);
+                      await leaveRoom(room.id, auth.currentUser.uid, room.betAmount);
                       await fetchRooms();
                     }}
                     style={{ backgroundColor: "red" }}
