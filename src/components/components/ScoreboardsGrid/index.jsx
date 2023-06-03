@@ -136,14 +136,18 @@ const ScoreboardsGrid = ({ PageInd, setPageInd }) => {
     <>
       {timeElapsed === 0 && PageInd === 0 ? (
         <>
+        <div className={classes.MessageDiv}>
           <MessageBoard message={getScoreBoardStateMessage()} />
-          <span onClick={prevDay} className={classes.time}>
-            {"<"}--
-          </span>
-          Date : {formattedDate}
-          <span onClick={nextDay} className={classes.time}>
-            --{">"}
-          </span>
+          </div>
+          <div className={classes.dateDiv}>
+            <span onClick={prevDay} className={classes.time}>
+              {"<"}-- Previous Day &nbsp;&nbsp;
+            </span>
+            <span className={classes.date}>Date : {formattedDate}</span>
+            <span onClick={nextDay} className={classes.time}>
+              &nbsp;&nbsp; Next Day --{">"}
+            </span>
+          </div>
           <div className={classes.grid}>
             {gamesToRender.map((pairScore) => (
               <Scoreboard
