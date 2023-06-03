@@ -128,7 +128,6 @@ const addReffererBalance = async (reffererMail) => {
 
 
     const success = await addCurrentUserBalance();
-    console.log("Added balance to", userData.email + " and " + auth.currentUser.email);
     return success && true;
   } catch (err) {
     console.error(err);
@@ -263,7 +262,6 @@ async function checkBalanceIsEnough(betAmount) {
       return true;
     }
     if (userData.balance >= betAmount) {
-      console.log(userData.balance, betAmount)
       const userDocRef = querySnapshot.docs[0].ref;
       const newBalance = userData.balance - betAmount;
       await updateDoc(userDocRef, { balance: newBalance });
@@ -297,8 +295,6 @@ const createRoomForCurrentUser = async (
         );
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-        console.log("Creating room for user:", userData.username);
-
         const roomId = await createRoom(
           name,
           userData.username,
@@ -320,7 +316,6 @@ const createRoomForCurrentUser = async (
           bets: arrayUnion(roomId),
         });
 
-        console.log("Room created with ID:", roomId);
         return roomId;
       } catch (err) {
         console.error(err);
@@ -353,8 +348,6 @@ const addParticipantToRoom = async (roomId) => {
       );
       const querySnapshot = await getDocs(q);
       const userData = querySnapshot.docs[0].data();
-      console.log("Adding user:", userData.username);
-
       await setDoc(
         roomDocRef,
         {
@@ -413,11 +406,9 @@ const leaveRoom = async (
   gameTime
 ) => {
   try {
-    console.log(roomId, participantId, betAmount, startDate, gameTime)
     const roomDocRef = doc(db, "rooms", roomId);
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
-    console.log(roomData)
     if (isMatchPast(gameTime, startDate)) {
       console.log("Match has already started");
     } else {
@@ -509,9 +500,6 @@ const fetchUserBets = async () => {
         const q = query(collection(db, "users"), where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-
-        console.log("Fetching bets for user:", userData.username);
-
         const bets = userData.bets || [];
         const roomPromises = bets.map(async (roomId) => {
           const roomDoc = doc(db, "rooms", roomId);
@@ -584,7 +572,6 @@ const returnBets = async () => {
       const matchId = room.matchId;
       const response = await getMatchScoreById(matchId);
       //if match score is 2-0 or 2-1
-      console.log(response);
       if (response.result[0] === 2) {
         if (creatorsTeam === response.team1) {
           //find the user from creator
@@ -726,7 +713,6 @@ const getUserById = async (userId) => {
   const q = query(collection(db, "users"), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
   const documentSnapshot = querySnapshot.docs[0];
-  console.log(documentSnapshot.ref);
   const userData = documentSnapshot.data();
   return { ...userData, ref: documentSnapshot.ref };
 };
