@@ -166,7 +166,7 @@ const leaderBoard = async () => {
   const q = query(
     collection(db, "users"),
     orderBy("balance", "desc"),
-    limit(10)
+    limit(100)
   );
   const querySnapshot = await getDocs(q);
   const leaderboard = querySnapshot.docs.map((doc) => {
