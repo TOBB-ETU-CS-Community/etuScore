@@ -53,7 +53,6 @@ function BetPage({
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
     setLoading(true);
-    console.log(coin);
     await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
@@ -62,7 +61,8 @@ function BetPage({
         ? pairScoreGlobal.awayTeam.name
         : pairScoreGlobal.homeTeam.name,
       pairScoreGlobal.eventDate,
-      coin
+      coin,
+      pairScoreGlobal.gameTime
     );
     await fetchRooms();
     setLoading(false);
@@ -78,7 +78,11 @@ function BetPage({
     } else if (checkBalanceIsEnough(coin)) {
       createBet();
       setShowRooms(true);
-      setSelectedTeam(selectedTeamForm === pairScoreGlobal.awayTeam.name? pairScoreGlobal.homeTeam.name: pairScoreGlobal.awayTeam.name);
+      setSelectedTeam(
+        selectedTeamForm === pairScoreGlobal.awayTeam.name
+          ? pairScoreGlobal.homeTeam.name
+          : pairScoreGlobal.awayTeam.name
+      );
       setSelectedTeamForm("");
       setRoomName("");
     } else {
@@ -93,18 +97,38 @@ function BetPage({
     year: "numeric",
   });
 
-  
   const currTime = currDate.toLocaleTimeString("tr-TR", {
     hour: "2-digit",
     minute: "2-digit",
-  }); 
-  
-    
+  });
+
   const handleCoin = (e) => {
-    console.log(e.target.value);
     setCoin(e.target.value);
   };
+  const isMatchPast = (hourMinute, startDate) => {
+    const currentDate = new Date();
+    const [day, month, year] = startDate.split(".");
+    const gameStartDate = new Date(`${month}/${day}/${year}`);
 
+    // Assuming hourMinute is in format "HH:mm"
+
+    // Extracting hours and minutes from hourMinute
+    const [gameTimeHours, gameTimeMinutes] = hourMinute.split(".");
+
+    // Setting the game start time with the same date as gameStartDate, but with gameTime hours and minutes
+    gameStartDate.setHours(gameTimeHours);
+    gameStartDate.setMinutes(gameTimeMinutes);
+    gameStartDate.setSeconds(0); // Reset seconds to 0 to ensure accurate comparison
+
+    const currentDateString = `${currentDate.getDate()}:${
+      currentDate.getMonth() + 1
+    }:${currentDate.getFullYear()}`;
+    const gameStartDateString = `${gameStartDate.getDate()}:${
+      gameStartDate.getMonth() + 1
+    }:${gameStartDate.getFullYear()}`;
+
+    return currentDate.getTime() > gameStartDate.getTime();
+  };
   return (
     <>
       {showRooms === false && (
@@ -219,9 +243,15 @@ function BetPage({
                 >
                   <h3>{room.name.toUpperCase()}</h3>
                   <p>Creator: {room.creatorName}</p>
-                  <p style={{color:"green"}}>Available Team: {room.availableTeam}</p>
-                  <o style={{color:"red"}}>Against Team: {room.creatorsTeam}</o>
-                  <p style={{color:"yellow"}}>Bet amount: {room.betAmount}🫘</p>
+                  <p style={{ color: "green" }}>
+                    Available Team: {room.availableTeam}
+                  </p>
+                  <o style={{ color: "red" }}>
+                    Against Team: {room.creatorsTeam}
+                  </o>
+                  <p style={{ color: "yellow" }}>
+                    Bet amount: {room.betAmount}🫘
+                  </p>
                   {room.participantName !== undefined &&
                     room.participantName !== "" &&
                     room.participantName !== null && (
@@ -261,19 +291,28 @@ function BetPage({
                       ? "Join"
                       : "Room Full"}
                   </button>
-                  {/* date and clock is not started */}
-                  {(pairScoreGlobal.participantName=="" || pairScoreGlobal.participantName==undefined || pairScoreGlobal.participantName==null) && 
-                  <button
-                    className={classes.button}
-                    onClick={async () => {
-                      await leaveRoom(room.id, auth.currentUser.uid, room.betAmount);
-                      await fetchRooms();
-                    }}
-                    style={{ backgroundColor: "red" }}
-                  >
-                    Leave
-                  </button>
-                  }
+                  {
+                    !isMatchPast(
+                      room.gameTime,
+                      room.Startdate
+                    ) && (
+                    <button
+                      className={classes.button}
+                      onClick={async () => {
+                        await leaveRoom(
+                          room.id,
+                          auth.currentUser.uid,
+                          room.betAmount,
+                          room.Startdate,
+                          room.gameTime
+                        );
+                        await fetchRooms();
+                      }}
+                      style={{ backgroundColor: "red" }}
+                    >
+                      Leave
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

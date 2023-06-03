@@ -132,7 +132,8 @@ const createRoom = async (
   creatorsTeam,
   availableTeam,
   Startdate,
-  betAmount
+  betAmount,
+  gameTime
 ) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
@@ -150,6 +151,7 @@ const createRoom = async (
       betAmount: betAmount,
       gameFinished: false,
       roomId: generateRandomRoomId(10),
+      gameTime,
     });
 
     const roomId = newRoomRef.id;
@@ -214,7 +216,8 @@ const createRoomForCurrentUser = async (
   availableTeam,
   pairScore,
   Startdate,
-  betAmount
+  betAmount,
+  gameTime
 ) => {
   try {
     const currentUser = auth.currentUser;
@@ -228,7 +231,6 @@ const createRoomForCurrentUser = async (
         );
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-        console.log("userData", userData);
         console.log("Creating room for user:", userData.username);
 
         const roomId = await createRoom(
@@ -242,7 +244,8 @@ const createRoomForCurrentUser = async (
           availableTeam,
           pairScore,
           Startdate,
-          betAmount
+          betAmount,
+          gameTime
         );
 
         // Add roomId to the bets array of the user
@@ -311,41 +314,100 @@ const addParticipantToRoom = async (roomId) => {
   }
 };
 
-const leaveRoom = async (roomId, participantId, betAmount) => {
+const isMatchPast = (hourMinute, startDate) => {
+  const currentDate = new Date();
+  const [day, month, year] = startDate.split(".");
+  const gameStartDate = new Date(`${month}/${day}/${year}`);
+
+  // Assuming hourMinute is in format "HH:mm"
+
+  // Extracting hours and minutes from hourMinute
+  const [gameTimeHours, gameTimeMinutes] = hourMinute.split(".");
+
+  // Setting the game start time with the same date as gameStartDate, but with gameTime hours and minutes
+  gameStartDate.setHours(gameTimeHours);
+  gameStartDate.setMinutes(gameTimeMinutes);
+  gameStartDate.setSeconds(0); // Reset seconds to 0 to ensure accurate comparison
+
+  const currentDateString = `${currentDate.getDate()}:${
+    currentDate.getMonth() + 1
+  }:${currentDate.getFullYear()}`;
+  const gameStartDateString = `${gameStartDate.getDate()}:${
+    gameStartDate.getMonth() + 1
+  }:${gameStartDate.getFullYear()}`;
+
+  return currentDate.getTime() > gameStartDate.getTime();
+};
+
+const leaveRoom = async (
+  roomId,
+  participantId,
+  betAmount,
+  startDate,
+  gameTime
+) => {
   try {
     const roomDocRef = doc(db, "rooms", roomId);
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
+    if (isMatchPast(gameTime, startDate)) {
+      console.log("Match has already started");
+    } else {
+      if (roomData.creator === participantId) {
+        await checkBalanceIsEnough(-1 * betAmount);
+        if (roomData.participant) {
+          await setDoc(
+            roomDocRef,
+            {
+              creator: roomData.participant,
+              creatorName: roomData.participantName,
+              participant: null,
+              participantName: null,
+            },
+            { merge: true }
+          );
+          // Add roomId to the bets array of the user
+          const q = query(
+            collection(db, "users"),
+            where("userId", "==", auth?.currentUser?.uid)
+          );
+          const querySnapshot = await getDocs(q);
+          const userDocRef = querySnapshot.docs[0].ref;
+          await updateDoc(userDocRef, {
+            bets: arrayRemove(roomId),
+          });
 
-    if (roomData.creator === participantId) {
-      checkBalanceIsEnough(-1 * betAmount);
+          console.log("Ownership transferred to participant");
+        } else {
+          await deleteDoc(roomDocRef);
 
-      if (roomData.participant) {
+          // remove roomId from the bets array of the user
+          const q = query(
+            collection(db, "users"),
+            where("userId", "==", auth?.currentUser?.uid)
+          );
+          const querySnapshot = await getDocs(q);
+          const userDocRef = querySnapshot.docs[0].ref;
+
+          await updateDoc(userDocRef, {
+            bets: arrayRemove(roomId),
+          });
+
+          console.log("Room deleted");
+          return;
+        }
+      } else if (roomData.participant === participantId) {
+        checkBalanceIsEnough(-1 * betAmount);
+
         await setDoc(
           roomDocRef,
           {
-            creator: roomData.participant,
-            creatorName: roomData.participantName,
             participant: null,
             participantName: null,
           },
           { merge: true }
         );
-        // Add roomId to the bets array of the user
-        const q = query(
-          collection(db, "users"),
-          where("userId", "==", auth?.currentUser?.uid)
-        );
-        const querySnapshot = await getDocs(q);
-        const userDocRef = querySnapshot.docs[0].ref;
-        await updateDoc(userDocRef, {
-          bets: arrayRemove(roomId),
-        });
-
-        console.log("Ownership transferred to participant");
-      } else {
-        await deleteDoc(roomDocRef);
 
         // remove roomId from the bets array of the user
         const q = query(
@@ -359,37 +421,11 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
           bets: arrayRemove(roomId),
         });
 
-        console.log("Room deleted");
+        console.log("Participant left the room");
+      } else {
+        console.log("Participant is not in the room");
         return;
       }
-    } else if (roomData.participant === participantId) {
-      checkBalanceIsEnough(-1 * betAmount);
-
-      await setDoc(
-        roomDocRef,
-        {
-          participant: null,
-          participantName: null,
-        },
-        { merge: true }
-      );
-
-      // remove roomId from the bets array of the user
-      const q = query(
-        collection(db, "users"),
-        where("userId", "==", auth?.currentUser?.uid)
-      );
-      const querySnapshot = await getDocs(q);
-      const userDocRef = querySnapshot.docs[0].ref;
-
-      await updateDoc(userDocRef, {
-        bets: arrayRemove(roomId),
-      });
-
-      console.log("Participant left the room");
-    } else {
-      console.log("Participant is not in the room");
-      return;
     }
   } catch (err) {
     console.error(err);
@@ -472,35 +508,68 @@ const returnBets = async () => {
       const room = rooms[i];
       const roomRef = doc(db, "rooms", room.id);
       const creator = room.creator;
+      const creatorsTeam = room.creatorsTeam;
       const participant = room.participant;
+      if(!participant){
+        continue;
+      }
       const betAmount = room.betAmount;
       const matchId = room.matchId;
-      const [left, right] = await getMatchScoreById(matchId);
+      const response = await getMatchScoreById(matchId);
       //if match score is 2-0 or 2-1
-      if (left === "2") {
-        //find the user from creator
-        const creatorUser = await getUserById(creator);
-        const creatorBalance = creatorUser.balance;
-        const newCreatorBalance = creatorBalance + betAmount * 2;
-        await updateDoc(creatorUser.ref, {
-          balance: newCreatorBalance,
-        });
-        //set gameFinished to true
-        await updateDoc(roomRef, {
-          gameFinished: true,
-        });
-      } else if (right === "2") {
-        //find the user from participant
-        const participantUser = await getUserById(participant);
-        const participantBalance = participantUser.balance;
-        const newParticipantBalance = participantBalance + betAmount * 2;
-        await updateDoc(participantUser.ref, {
-          balance: newParticipantBalance,
-        });
-        //set gameFinished to true
-        await updateDoc(room.ref, {
-          gameFinished: true,
-        });
+      console.log(response);
+      if (response.result[0] === 2) {
+        if (creatorsTeam === response.team1) {
+          //find the user from creator
+          const creatorUser = await getUserById(creator);
+          const creatorBalance = creatorUser.balance;
+          const newCreatorBalance = creatorBalance + betAmount * 2;
+          await updateDoc(creatorUser.ref, {
+            balance: newCreatorBalance,
+          });
+          //set gameFinished to true
+          await updateDoc(roomRef, {
+            gameFinished: true,
+          });
+        } else {
+          //find the user from participant
+          const participantUser = await getUserById(participant);
+          const participantBalance = participantUser.balance;
+          const newParticipantBalance = participantBalance + betAmount * 2;
+          await updateDoc(participantUser.ref, {
+            balance: newParticipantBalance,
+          });
+          //set gameFinished to true
+          await updateDoc(roomRef, {
+            gameFinished: true,
+          });
+        }
+      } else {
+        if (creatorsTeam === response.team2) {
+          //find the user from creator
+          const creatorUser = await getUserById(creator);
+          const creatorBalance = creatorUser.balance;
+          const newCreatorBalance = creatorBalance + betAmount * 2;
+          await updateDoc(creatorUser.ref, {
+            balance: newCreatorBalance,
+          });
+          //set gameFinished to true
+          await updateDoc(roomRef, {
+            gameFinished: true,
+          });
+        } else {
+          //find the user from participant
+          const participantUser = await getUserById(participant);
+          const participantBalance = participantUser.balance;
+          const newParticipantBalance = participantBalance + betAmount * 2;
+          await updateDoc(participantUser.ref, {
+            balance: newParticipantBalance,
+          });
+          //set gameFinished to true
+          await updateDoc(roomRef, {
+            gameFinished: true,
+          });
+        }
       }
     }
   } catch (err) {
@@ -511,17 +580,17 @@ const returnBets = async () => {
 
 const getMatchScoreById = async (matchId) => {
   //call the fetchmatches and for the find match with matchId
-  const matchesData = await SheetsService.fetchMatches();
-  const matchesValues = matchesData.values;
+  const matchesData = await fetchMatchesFireStore();
+  const matchesValues = matchesData.data;
   const matchesDataObjects = matchesValues.map((match) => {
-    if (match.length >= 7) {
-      const matchNumber = match[0];
-      const group = match[1];
-      const team1 = match[2];
-      const team2 = match[3];
-      const date = match[4];
-      const time = match[5];
-      let result = match[6];
+    if (Object.keys(match).length > 6) {
+      const matchNumber = match.matchNumber;
+      const group = match.group;
+      const team1 = match.team1;
+      const team2 = match.team2;
+      const date = match.date;
+      const time = match.time;
+      let result = match.result;
       //if result have (h) delete it
       if (result.includes("(h)")) {
         result = result.replace("(h)", "");
@@ -536,17 +605,17 @@ const getMatchScoreById = async (matchId) => {
         result,
       };
     } else {
-      const matchNumber = match[0];
+      const matchNumber = match.matchNumber;
       return {
         matchNumber: matchNumber,
-        result: ["0", "0", "0"],
+        result: "0-0",
       };
     }
   });
   const match = matchesDataObjects.find(
-    (match) => match.matchNumber === matchId
+    (match) => match.matchNumber === String(matchId - 1)
   );
-  return match.result[0], match.result[2];
+  return match;
 };
 
 const getMatchTimeById = async (matchId) => {

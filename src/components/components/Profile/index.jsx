@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from "./profile.module.scss";
-import { db, fetchUserBets, leaveRoom, auth, getMatchTimeById } from "../../../services/firebase";
+import {
+  db,
+  fetchUserBets,
+  leaveRoom,
+  auth,
+  getMatchTimeById,
+} from "../../../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -8,7 +14,7 @@ const Profile = ({ pairScoreGlobal }) => {
   const [user, loading, error] = useAuthState(auth);
   const [userBets, setUserBets] = useState([]);
   const [balance, setBalance] = useState(0);
-  const [playedBets, setPlayedBets] = useState(0);
+  const [playedBets, setPlayedBets] = useState(1);
   const fetchUserBetsLocal = async () => {
     const userBets = await fetchUserBets();
     setUserBets(userBets);
@@ -48,6 +54,30 @@ const Profile = ({ pairScoreGlobal }) => {
     year: "numeric",
   });
 
+  const isMatchPast = (hourMinute, startDate) => {
+    const currentDate = new Date();
+    const [day, month, year] = startDate.split(".");
+    const gameStartDate = new Date(`${month}/${day}/${year}`);
+
+    // Assuming hourMinute is in format "HH:mm"
+
+    // Extracting hours and minutes from hourMinute
+    const [gameTimeHours, gameTimeMinutes] = hourMinute.split(".");
+
+    // Setting the game start time with the same date as gameStartDate, but with gameTime hours and minutes
+    gameStartDate.setHours(gameTimeHours);
+    gameStartDate.setMinutes(gameTimeMinutes);
+    gameStartDate.setSeconds(0); // Reset seconds to 0 to ensure accurate comparison
+
+    const currentDateString = `${currentDate.getDate()}:${
+      currentDate.getMonth() + 1
+    }:${currentDate.getFullYear()}`;
+    const gameStartDateString = `${gameStartDate.getDate()}:${
+      gameStartDate.getMonth() + 1
+    }:${gameStartDate.getFullYear()}`;
+
+    return currentDate.getTime() > gameStartDate.getTime();
+  };
   return (
     <div className={styles.roomsPage}>
       <main className={styles.mainPart}>
@@ -71,35 +101,48 @@ const Profile = ({ pairScoreGlobal }) => {
             <div
               key={room.roomId}
               className={`${styles.room} ${
-                playedBets === 0 ? "" : styles.hidden
+                playedBets ===
+                (isMatchPast(room.roomData.gameTime, room.roomData.Startdate)
+                  ? 0
+                  : 1)
+                  ? ""
+                  : styles.hidden
               }`}
             >
               <h3>{room.roomData?.name}</h3>
               <p>Creator: {room.roomData?.creatorName || ""}</p>
-              <p style={{ color: "green" }}>Available Team: {room.roomData.availableTeam} </p>
-              <p style={{ color: "red" }}>Against Team:{room.roomData.creatorsTeam}</p>
-              <p style={{ color: "yellow" }}>Bet amount: {room.roomData.betAmount}🫘</p>
+              <p style={{ color: "green" }}>
+                Available Team: {room.roomData.availableTeam}{" "}
+              </p>
+              <p style={{ color: "red" }}>
+                Against Team: {room.roomData.creatorsTeam}
+              </p>
+              <p style={{ color: "yellow" }}>
+                Bet amount: {room.roomData.betAmount}🫘
+              </p>
               {room.roomData?.participantName !== undefined &&
                 room.roomData?.participantName !== "" &&
                 room.roomData?.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-                {(room.roomData.participant === undefined ||
-                room.roomData.participant === "") && (
-              <button
-                className={styles.button}
-                onClick={async () => {
-                  await leaveRoom(
-                    room.roomId,
-                    auth.currentUser.uid,
-                    room.roomData.betAmount
-                  );
-                  await fetchUserBetsLocal();
-                }}
-              >
-                Leave
-              </button>
-                )}
+              {!isMatchPast(
+                room.roomData.gameTime,
+                room.roomData.Startdate
+              ) && (
+                <button
+                  className={styles.button}
+                  onClick={async () => {
+                    await leaveRoom(
+                      room.roomId,
+                      auth.currentUser.uid,
+                      room.roomData.betAmount
+                    );
+                    await fetchUserBetsLocal();
+                  }}
+                >
+                  Leave
+                </button>
+              )}
             </div>
           ))}
         </div>
