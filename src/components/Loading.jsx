@@ -2,8 +2,8 @@ import React from 'react'
 
 export default function Loading() {
   return (
-    <div>
-        Loading...
+    <div className="text-center font-weight-bold text-primary" style={{fontSize: '2rem'}}>
+      Loading...
     </div>
   )
 }

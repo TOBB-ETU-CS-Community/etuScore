@@ -10,8 +10,10 @@ import {
 } from "../../../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Loading from "../../Loading";
 
 const Profile = ({ pairScoreGlobal }) => {
+  const [load, setLoad] = useState(false);
   const [user, loading, error] = useAuthState(auth);
   const [userBets, setUserBets] = useState([]);
   const [balance, setBalance] = useState(0);
@@ -117,6 +119,9 @@ const Profile = ({ pairScoreGlobal }) => {
   };
 
   return (
+    <>
+    {load && <Loading />}
+    {!load &&
     <div className={styles.roomsPage}>
       <main className={styles.mainPart}>
         {isReffered === false && (
@@ -182,6 +187,7 @@ const Profile = ({ pairScoreGlobal }) => {
                 <button
                   className={styles.button}
                   onClick={async () => {
+                    setLoad(true);
                     await leaveRoom(
                       room.roomId,
                       auth.currentUser.uid,
@@ -190,6 +196,8 @@ const Profile = ({ pairScoreGlobal }) => {
                       room.roomData.gameTime
                     );
                     await fetchUserBetsLocal();
+                    await fetchBalance();
+                    setLoad(false);
                   }}
                 >
                   Leave
@@ -200,6 +208,8 @@ const Profile = ({ pairScoreGlobal }) => {
         </div>
       </main>
     </div>
+    }
+    </>
   );
 };
 
