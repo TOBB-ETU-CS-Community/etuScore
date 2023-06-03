@@ -75,7 +75,9 @@ function BetPage({
       return false;
     } else if (selectedTeamForm === "") {
       alert("Please select team");
-    } else if (await checkBalanceIsEnough(coin)) {
+    } else if(coin<=0){
+      alert("Please enter proper coin amount");
+    }else if (await checkBalanceIsEnough(coin)) {
       console.log("coin", coin);
       createBet();
       setShowRooms(true);
