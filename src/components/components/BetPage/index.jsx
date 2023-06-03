@@ -78,7 +78,6 @@ function BetPage({
     } else if(coin<=0){
       alert("Please enter proper coin amount");
     }else if (await checkBalanceIsEnough(coin)) {
-      console.log("coin", coin);
       createBet();
       setShowRooms(true);
       setSelectedTeam(
@@ -249,9 +248,9 @@ function BetPage({
                   <p style={{ color: "green" }}>
                     Available Team: {room.availableTeam}
                   </p>
-                  <o style={{ color: "red" }}>
+                  <p style={{ color: "red" }}>
                     Against Team: {room.creatorsTeam}
-                  </o>
+                  </p>
                   <p style={{ color: "yellow" }}>
                     Bet amount: {room.betAmount}🫘
                   </p>

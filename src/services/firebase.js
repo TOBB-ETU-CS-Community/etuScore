@@ -413,10 +413,11 @@ const leaveRoom = async (
   gameTime
 ) => {
   try {
+    console.log(roomId, participantId, betAmount, startDate, gameTime)
     const roomDocRef = doc(db, "rooms", roomId);
-
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
+    console.log(roomData)
     if (isMatchPast(gameTime, startDate)) {
       console.log("Match has already started");
     } else {

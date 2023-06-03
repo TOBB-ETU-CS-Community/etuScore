@@ -6,7 +6,7 @@ import {
   leaveRoom,
   auth,
   getMatchTimeById,
-  addReffererBalance
+  addReffererBalance,
 } from "../../../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -98,7 +98,7 @@ const Profile = ({ pairScoreGlobal }) => {
 
     return currentDate.getTime() > gameStartDate.getTime();
   };
-  const formControl = async (e) =>{
+  const formControl = async (e) => {
     e.preventDefault();
     if (isReffered === "") {
       alert("Please enter a valid refferer ");
@@ -106,31 +106,31 @@ const Profile = ({ pairScoreGlobal }) => {
     } else if (!referrer.endsWith("@etu.edu.tr")) {
       alert("Please enter an etu.edu.tr mail address ");
       return false;
-    }else{
+    } else {
       const success = await addReffererBalance(referrer);
       setIsReffered(success);
-      if(success===true){
+      if (success === true) {
         await fetchBalance();
       }
       return success;
     }
-  }
+  };
 
   return (
     <div className={styles.roomsPage}>
       <main className={styles.mainPart}>
-        { isReffered===false &&(<form className={styles.formContainer}>
-          <input
-            type="text"
-            placeholder="Enter refferer mail"
-            value={referrer}
-            onChange={handleReffererChange}
-            className={styles.input}
-          />
-          <button  onClick={formControl}>
-            Add Referrer
-          </button>
-        </form>)}
+        {isReffered === false && (
+          <form className={styles.formContainer}>
+            <input
+              type="text"
+              placeholder="Enter refferer mail"
+              value={referrer}
+              onChange={handleReffererChange}
+              className={styles.input}
+            />
+            <button onClick={formControl}>Add Referrer</button>
+          </form>
+        )}
         <h2> Balance: {balance} 🫘</h2>
         <div className={styles.teamButtons}>
           <button
@@ -185,7 +185,9 @@ const Profile = ({ pairScoreGlobal }) => {
                     await leaveRoom(
                       room.roomId,
                       auth.currentUser.uid,
-                      room.roomData.betAmount
+                      room.roomData.betAmount,
+                      room.roomData.Startdate,
+                      room.roomData.gameTime
                     );
                     await fetchUserBetsLocal();
                   }}
