@@ -79,6 +79,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       isAdmin: false,
       authProvider: "local",
       balance: 5,
+      isReffered: false,
     });
 
     // Send verification email
@@ -92,6 +93,58 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   } catch (err) {
     console.error(err);
     alert(err.message);
+  }
+};
+const addReffererBalance = async (reffererMail) => {
+  const currentUser = auth.currentUser;
+  if(currentUser.isReffered) {
+    alert("You have already been reffered");
+    return false;
+  }
+  try {
+    const q = query(collection(db, "users"), where("email", "==", reffererMail));
+    const querySnapshot = await getDocs(q);
+    const userData = querySnapshot.docs[0].data();
+    
+    const q2 = query(
+      collection(db, "users"),
+      where("userId", "==", userData.userId)
+    );
+    const querySnapshot2 = await getDocs(q2);
+    const userDocRef = querySnapshot2.docs[0].ref;
+    await updateDoc(userDocRef, {
+      balance: userData.balance + 5,
+    });
+
+
+    const success = await addCurrentUserBalance();
+    console.log("Added balance to", userData.email + " and " + auth.currentUser.email);
+    return success && true;
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+    return false;
+  }
+};
+
+const addCurrentUserBalance = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    const q = query(
+      collection(db, "users"),
+      where("userId", "==", currentUser?.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    const userDocRef = querySnapshot.docs[0].ref;
+    await updateDoc(userDocRef, {
+      balance: querySnapshot.docs[0].data().balance + 5,
+      isReffered: true,
+    });
+    return true;
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+    return false;
   }
 };
 
@@ -510,7 +563,7 @@ const returnBets = async () => {
       const creator = room.creator;
       const creatorsTeam = room.creatorsTeam;
       const participant = room.participant;
-      if(!participant){
+      if (!participant) {
         continue;
       }
       const betAmount = room.betAmount;
@@ -793,4 +846,5 @@ export {
   leaderBoard,
   returnBets,
   getMatchTimeById,
+  addReffererBalance,
 };

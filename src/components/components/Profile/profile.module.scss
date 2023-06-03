@@ -151,3 +151,16 @@
 .hidden {
     display: none;
   }
+
+
+.formContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    button{
+        width: 15rem;
+        margin-top: 1rem;
+    }
+  }
