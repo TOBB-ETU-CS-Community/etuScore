@@ -547,6 +547,45 @@ const getMatchScoreById = async (matchId) => {
   return match.result[0], match.result[2];
 };
 
+const getMatchTimeById = async (matchId) => {
+  //call the fetchmatches and for the find match with matchId
+  const matchesData = await SheetsService.fetchMatches();
+  const matchesValues = matchesData.values;
+  const matchesDataObjects = matchesValues.map((match) => {
+    if (match.length >= 7) {
+      const matchNumber = match[0];
+      const group = match[1];
+      const team1 = match[2];
+      const team2 = match[3];
+      const date = match[4];
+      const time = match[5];
+      const result = match[6];
+      return {
+        matchNumber,
+        group,
+        team1,
+        team2,
+        date,
+        time,
+        result,
+      };
+    } else {
+      const matchNumber = match[0];
+      const time = match[5];
+      return {
+        matchNumber: matchNumber,
+        time: time,
+      };
+    }
+  });
+  const match = matchesDataObjects.find(
+    (match) => match.matchNumber === matchId
+  );
+  return match.time;
+};
+
+      
+
 const getUserById = async (userId) => {
   const q = query(collection(db, "users"), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
@@ -685,4 +724,5 @@ export {
   checkBalanceIsEnough,
   leaderBoard,
   returnBets,
+  getMatchTimeById,
 };

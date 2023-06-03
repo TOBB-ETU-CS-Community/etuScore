@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./profile.module.scss";
-import { db, fetchUserBets, leaveRoom, auth } from "../../../services/firebase";
+import { db, fetchUserBets, leaveRoom, auth, getMatchTimeById } from "../../../services/firebase";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -12,22 +12,6 @@ const Profile = ({ pairScoreGlobal }) => {
   const fetchUserBetsLocal = async () => {
     const userBets = await fetchUserBets();
     setUserBets(userBets);
-  };
-
-  const fetchMatchTime = async (matchId) => {
-    const q = query(
-      collection(db, "matches"),
-      where("matchNumber", "==", matchId)
-    );
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const matchData = querySnapshot.docs[0].data();
-      return matchData.matchTime;
-    } else {
-      // Handle case when no matching document is found
-      return "No match data found";
-    }
   };
 
   useEffect(() => {
@@ -100,7 +84,8 @@ const Profile = ({ pairScoreGlobal }) => {
                 room.roomData?.participantName !== null && (
                   <p>Participant: {room.roomData.participantName}</p>
                 )}
-              {console.log(fetchMatchTime(room.roomData.matchId))}
+                {room.roomData.participant == undefined ||
+                room.roomData.participant == "" && (
               <button
                 className={styles.button}
                 onClick={async () => {
@@ -114,6 +99,7 @@ const Profile = ({ pairScoreGlobal }) => {
               >
                 Leave
               </button>
+                )}
             </div>
           ))}
         </div>
