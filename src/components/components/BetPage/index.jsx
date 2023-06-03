@@ -78,7 +78,8 @@ function BetPage({
     } else if (checkBalanceIsEnough(coin)) {
       createBet();
       setShowRooms(true);
-      setSelectedTeam();
+      setSelectedTeam(selectedTeamForm === pairScoreGlobal.awayTeam.name? pairScoreGlobal.homeTeam.name: pairScoreGlobal.awayTeam.name);
+      setSelectedTeamForm("");
       setRoomName("");
     } else {
       alert("You don't have enough coin");
