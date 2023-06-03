@@ -173,8 +173,10 @@ const logout = () => {
 };
 
 const leaderBoard = async () => {
+  //where isVerified == true
   const q = query(
     collection(db, "users"),
+    where("isVerified", "==", true),
     orderBy("balance", "desc"),
     limit(100)
   );
