@@ -266,7 +266,7 @@ function BetPage({
                         room.participantName === "" ||
                         room.participantName === null
                       ) {
-                        if (checkBalanceIsEnough(room.betAmount)) {
+                        if (await checkBalanceIsEnough(room.betAmount)) {
                           await addParticipantToRoom(
                             room.id,
                             auth.currentUser.uid

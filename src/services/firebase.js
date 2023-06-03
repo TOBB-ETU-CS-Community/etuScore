@@ -80,6 +80,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       authProvider: "local",
       balance: 5,
       isReffered: false,
+      isVerified: false,
     });
 
     // Send verification email
