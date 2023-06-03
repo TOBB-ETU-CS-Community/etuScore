@@ -124,7 +124,6 @@ const leaderBoard = async () => {
   return leaderboard;
 };
 
-
 const createRoom = async (
   name,
   creatorName,
@@ -167,8 +166,8 @@ const createRoom = async (
 };
 
 function generateRandomRoomId(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let roomId = '';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let roomId = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -177,7 +176,6 @@ function generateRandomRoomId(length) {
 
   return roomId;
 }
-
 
 async function checkBalanceIsEnough(betAmount) {
   const currentUser = auth.currentUser;
@@ -197,10 +195,10 @@ async function checkBalanceIsEnough(betAmount) {
     } catch (err) {
       console.log(err);
     }
-    if(betAmount<0){
+    if (betAmount < 0) {
       //add + amount to balance
       const userDocRef = querySnapshot.docs[0].ref;
-      const newBalance = userData.balance + (betAmount*-1);
+      const newBalance = userData.balance + betAmount * -1;
       await updateDoc(userDocRef, { balance: newBalance });
       return true;
     }
@@ -325,7 +323,7 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
 
     const roomSnapshot = await getDoc(roomDocRef);
     const roomData = roomSnapshot.data();
-    checkBalanceIsEnough(-1*betAmount);
+    checkBalanceIsEnough(-1 * betAmount);
 
     if (roomData.creator === participantId) {
       if (roomData.participant) {
@@ -355,7 +353,7 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
         const q = query(collection(db, "users"), auth?.currentUser?.uid);
         const querySnapshot = await getDocs(q);
         const userDoc = querySnapshot.docs[0];
-        console.log(roomId)
+        console.log(roomId);
         const bets = userDoc.data().bets || [];
         const index = bets.indexOf(roomId);
         if (index !== -1) {
@@ -454,7 +452,7 @@ const getRoomsByActiveMatchId = async (activeMatchId) => {
 };
 
 //control all rooms from firebase for gameFinished false, if score is 2-0 2-1 find the user from creator or 0-2 1-2 find the user from participant and add their balance to betAmount*2
-const returnBets = async() => {
+const returnBets = async () => {
   try {
     const roomsCollectionRef = collection(db, "rooms");
     const querySnapshot = await getDocs(
@@ -466,35 +464,34 @@ const returnBets = async() => {
         ...doc.data(),
       };
     });
-    console.log(rooms)
     //for every room find the creator and participant
     for (let i = 0; i < rooms.length; i++) {
       const room = rooms[i];
+      const roomRef = doc(db, "rooms", room.id);
       const creator = room.creator;
       const participant = room.participant;
       const betAmount = room.betAmount;
       const matchId = room.matchId;
-      const match = await getMatchById(matchId);
-      const matchScore = match.score;
-      const matchScoreArray = matchScore.split('-');
+      console.log(matchId)
+      const [left, right] = await getMatchScoreById(matchId);
       //if match score is 2-0 or 2-1
-      if (matchScoreArray[0] === '2') {
+      if (left === "2") {
         //find the user from creator
         const creatorUser = await getUserById(creator);
         const creatorBalance = creatorUser.balance;
-        const newCreatorBalance = creatorBalance + betAmount*2;
+        const newCreatorBalance = creatorBalance + betAmount * 2;
         await updateDoc(creatorUser.ref, {
           balance: newCreatorBalance,
         });
         //set gameFinished to true
-        await updateDoc(room.ref, {
+        await updateDoc(roomRef, {
           gameFinished: true,
         });
-      } else if (matchScoreArray[1] === '2') {
+      } else if (right === "2") {
         //find the user from participant
         const participantUser = await getUserById(participant);
         const participantBalance = participantUser.balance;
-        const newParticipantBalance = participantBalance + betAmount*2;
+        const newParticipantBalance = participantBalance + betAmount * 2;
         await updateDoc(participantUser.ref, {
           balance: newParticipantBalance,
         });
@@ -504,40 +501,60 @@ const returnBets = async() => {
         });
       }
     }
-
-      
-  }catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
-
-const getMatchById = async (matchId) => {
-  try {
-    const matchDoc = doc(db, "matches", matchId);
-    const matchSnapshot = await getDoc(matchDoc);
-    const matchData = matchSnapshot.data();
-    return matchData;
   } catch (err) {
     console.error(err);
     throw err;
   }
+};
+
+const getMatchScoreById = async (matchId) => {
+  //call the fetchmatches and for the find match with matchId
+  const matchesData = await SheetsService.fetchMatches();
+  const matchesValues = matchesData.values;
+  const matchesDataObjects = matchesValues.map((match) => {
+    if (match.length >= 7) {
+      const matchNumber = match[0];
+      const group = match[1];
+      const team1 = match[2];
+      const team2 = match[3];
+      const date = match[4];
+      const time = match[5];
+      let result = match[6];
+      //if result have (h) delete it
+      if (result.includes("(h)")) {
+        result = result.replace("(h)", "");
+      }
+      return {
+        matchNumber,
+        group,
+        team1,
+        team2,
+        date,
+        time,
+        result,
+      };
+    } else {
+      const matchNumber = match[0];
+      return {
+        matchNumber: matchNumber,
+        result : ["0", "0", "0"],
+      };
+    }
+  });
+  const match = matchesDataObjects.find(
+    (match) => match.matchNumber === matchId
+  );
+  return match.result[0], match.result[2];
 };
 
 const getUserById = async (userId) => {
-  try {
-    const userDoc = doc(db, "users", userId);
-    const userSnapshot = await getDoc(userDoc);
-    const userData = userSnapshot.data();
-    return userData;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  const q = query(collection(db, "users"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  const documentSnapshot = querySnapshot.docs[0];
+  console.log(documentSnapshot.ref)
+  const userData = documentSnapshot.data();
+  return { ...userData, ref: documentSnapshot.ref };
 };
-      
-        
-
 
 
 async function saveDataToFirestore() {
@@ -667,5 +684,5 @@ export {
   fetchUserBets,
   checkBalanceIsEnough,
   leaderBoard,
-  returnBets
+  returnBets,
 };

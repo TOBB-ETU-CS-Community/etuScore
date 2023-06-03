@@ -31,8 +31,6 @@ const Scoreboard = ({
     year: "numeric",
   });
 
-  console.log(gameTime)
-
   return (
     eventDate === dayDate && (
       <div className={classes.score}>
