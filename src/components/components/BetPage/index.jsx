@@ -40,14 +40,12 @@ function BetPage({
     //fetch rooms from pairScoreGlobal.gameId
     const rooms = await getRoomsByActiveMatchId(pairScoreGlobal.gameId);
     setRooms(rooms);
-    console.log(rooms);
   };
   useEffect(() => {
     const fetchRooms = async () => {
       //fetch rooms from pairScoreGlobal.gameId
       const rooms = await getRoomsByActiveMatchId(pairScoreGlobal.gameId);
       setRooms(rooms);
-      console.log(rooms);
     };
     if (PageInd === 2) {
       fetchRooms();
@@ -55,6 +53,7 @@ function BetPage({
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
     setLoading(true);
+    console.log(coin);
     await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
@@ -69,7 +68,8 @@ function BetPage({
     setLoading(false);
   };
 
-  function formControl() {
+  function formControl(e) {
+    e.preventDefault();
     if (roomName === "") {
       alert("Please enter room name");
       return false;
@@ -98,13 +98,12 @@ function BetPage({
     minute: "2-digit",
   }); 
   
-  
-console.log(pairScoreGlobal.gameTime)    
+    
   const handleCoin = (e) => {
+    console.log(e.target.value);
     setCoin(e.target.value);
   };
 
-  console.log(pairScoreGlobal)
   return (
     <>
       {showRooms === false && (

@@ -133,13 +133,11 @@ const createRoom = async (
   creator,
   creatorsTeam,
   availableTeam,
-  pairScore,
   Startdate,
   betAmount
 ) => {
   try {
     const roomCollectionRef = collection(db, "rooms");
-
     const newRoomRef = await addDoc(roomCollectionRef, {
       creator: creator,
       creatorName: creatorName,
@@ -153,7 +151,6 @@ const createRoom = async (
       Startdate: Startdate,
       betAmount: betAmount,
       gameFinished: false,
-      score: pairScore,
       roomId: generateRandomRoomId(10),
     });
 
@@ -191,7 +188,6 @@ async function checkBalanceIsEnough(betAmount) {
       );
       querySnapshot = await getDocs(q);
       userData = querySnapshot.docs[0].data();
-      console.log(userData);
     } catch (err) {
       console.log(err);
     }
@@ -224,7 +220,6 @@ const createRoomForCurrentUser = async (
 ) => {
   try {
     const currentUser = auth.currentUser;
-    console.log(auth);
     if (currentUser) {
       const userId = currentUser.uid;
 
@@ -235,7 +230,7 @@ const createRoomForCurrentUser = async (
         );
         const querySnapshot = await getDocs(q);
         const userData = querySnapshot.docs[0].data();
-
+          console.log("userData", userData);
         console.log("Creating room for user:", userData.username);
 
         const roomId = await createRoom(
@@ -287,9 +282,8 @@ const addParticipantToRoom = async (roomId) => {
 
     try {
       const q = query(collection(db, "users"), currentUser?.uid);
-      const querySnapshot = await getDocs(q);
-      const userData = querySnapshot.docs[0].data();
-
+      const querySnapshot = await getDoc(q);
+      const userData = querySnapshot.data();
       console.log("Adding user:", userData.username);
 
       await setDoc(
@@ -353,7 +347,6 @@ const leaveRoom = async (roomId, participantId, betAmount) => {
         const q = query(collection(db, "users"), auth?.currentUser?.uid);
         const querySnapshot = await getDocs(q);
         const userDoc = querySnapshot.docs[0];
-        console.log(roomId);
         const bets = userDoc.data().bets || [];
         const index = bets.indexOf(roomId);
         if (index !== -1) {
@@ -472,7 +465,6 @@ const returnBets = async () => {
       const participant = room.participant;
       const betAmount = room.betAmount;
       const matchId = room.matchId;
-      console.log(matchId)
       const [left, right] = await getMatchScoreById(matchId);
       //if match score is 2-0 or 2-1
       if (left === "2") {
