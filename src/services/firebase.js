@@ -56,6 +56,15 @@ const logInWithEmailAndPassword = async (email, password) => {
         "Email not verified. Please check your email to verify your account."
       );
     }
+    //find user in db
+    const q = query(collection(db, "users"), where("userId", "==", user.uid));
+    const querySnapshot = await getDocs(q);
+    const userData = querySnapshot.docs[0].data();
+    if(userData.isVerified === false) {
+      await updateDoc(querySnapshot.docs[0].ref, {
+        isVerified: true,
+      });
+    }
 
     // Proceed with login
     // ...
