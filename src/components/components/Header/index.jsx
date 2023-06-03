@@ -24,11 +24,12 @@ const Header = ({ PageInd, setPageInd }) => {
       />
       <h2>TOBB World Cup Scoreboard</h2>
       <div className="button-group">
-      <button className="profile" onClick={profile}>
-          My Profile
-        </button>
+      
         <button className="matches" onClick={matches}>
           Matches
+        </button>
+        <button className="profile" onClick={profile}>
+          My Profile
         </button>
         <button className="groups" onClick={groups}>
           Groups
@@ -36,6 +37,7 @@ const Header = ({ PageInd, setPageInd }) => {
         <button className="leaderboard" onClick={leaderboard}>
           Leaderboard
         </button>
+        
         <button className="logout" onClick={logout}>
           Logout
         </button>
