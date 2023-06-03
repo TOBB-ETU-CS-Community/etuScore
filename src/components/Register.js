@@ -29,7 +29,7 @@ function Register() {
     } else if (!email.endsWith("@etu.edu.tr")) {
       alert("Only email addresses with the domain 'etu.edu.tr' are allowed.");
     } else {
-      registerWithEmailAndPassword(name, email, password);
+      registerWithEmailAndPassword(name, email.toLowerCase() , password);
     }
   };
 
