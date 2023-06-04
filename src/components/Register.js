@@ -3,6 +3,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, registerWithEmailAndPassword } from "../services/firebase";
 import "./Register.css";
+import Loading from "./Loading";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -29,14 +30,13 @@ function Register() {
     } else if (!email.endsWith("@etu.edu.tr")) {
       alert("Only email addresses with the domain 'etu.edu.tr' are allowed.");
     } else {
-      registerWithEmailAndPassword(name, email, password);
+      registerWithEmailAndPassword(name, email.toLowerCase() , password);
     }
   };
 
   useEffect(() => {
     if (loading) {
-      // Show a loading screen or spinner while checking authentication state
-      return;
+      <Loading />;
     }
     if (user) { 
       navigate("/dashboard");

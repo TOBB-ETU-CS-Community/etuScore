@@ -30,7 +30,6 @@ const reducer = (state, action) => {
 
   switch (action.type) {
     case actionTypes.START_GAME:
-      console.log(">>> START_GAME: gameId:", gameId);
       return {
         ...state,
         games: state.games.map((game) =>
@@ -47,13 +46,6 @@ const reducer = (state, action) => {
       if (!isGameStarted) {
         return state;
       }
-
-      console.log(
-        ">>> UPDATE_SCORE: gameId:",
-        gameId,
-        " | team: ",
-        teamsMap[teamId]
-      );
 
       // Increment the goals value of the team who scored
       const team = teamsMap[teamId];
@@ -72,8 +64,6 @@ const reducer = (state, action) => {
         ),
       };
     case actionTypes.FINISH_GAME:
-      console.log(">>> FINISH_GAME: gameId:", gameId);
-
       return {
         ...state,
         games: state.games.filter((game) => game.gameId !== gameId),

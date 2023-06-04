@@ -12,6 +12,7 @@ import {
 } from "../../../services/firebase";
 import classes from "./betpage.module.scss";
 import { auth, db } from "../../../services/firebase";
+import Loading from "../../Loading";
 function BetPage({
   PageInd,
   setPageInd,
@@ -52,7 +53,6 @@ function BetPage({
     }
   }, [pairScoreGlobal.gameId, PageInd]);
   const createBet = async (event) => {
-    setLoading(true);
     await createRoomForCurrentUser(
       roomName,
       pairScoreGlobal.gameId,
@@ -65,18 +65,21 @@ function BetPage({
       pairScoreGlobal.gameTime
     );
     await fetchRooms();
-    setLoading(false);
   };
 
-  function formControl(e) {
+  async function formControl(e) {
     e.preventDefault();
     if (roomName === "") {
       alert("Please enter room name");
       return false;
     } else if (selectedTeamForm === "") {
       alert("Please select team");
-    } else if (checkBalanceIsEnough(coin)) {
+    } else if (coin <= 0) {
+      alert("Please enter proper coin amount");
+    } else if (await checkBalanceIsEnough(coin)) {
+      setLoading(true);
       createBet();
+      setLoading(false);
       setShowRooms(true);
       setSelectedTeam(
         selectedTeamForm === pairScoreGlobal.awayTeam.name
@@ -131,194 +134,193 @@ function BetPage({
   };
   return (
     <>
-      {showRooms === false && (
-        <div className={classes.betpage}>
-          <main>
-            <h2>Oyun: {pairScoreGlobal.gameId}</h2>
-            <h2>Match Day: {dayGlobal}</h2>
+      {loading && <Loading />}
+        {!loading && showRooms === false && (
+          <div className={classes.betpage}>
+            <main>
+              <h2>Oyun: {pairScoreGlobal.gameId}</h2>
+              <h2>Match Day: {dayGlobal}</h2>
 
-            <div className={classes.teams}>
-              <div className={classes.teamview}>
-                <TeamView teamData={pairScoreGlobal.homeTeam} />
-              </div>
-              <Result
-                className={classes.result}
-                homeTeamScore={pairScoreGlobal.homeTeam.score}
-                awayTeamScore={pairScoreGlobal.awayTeam.score}
-              />
-              <GameStatus status={statusGlobal} />
-              <div className={classes.teamview}>
-                <TeamView teamData={pairScoreGlobal.awayTeam} />
-              </div>
-            </div>
-            <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
-            <form className={classes.formContainer}>
-              <input
-                type="text"
-                placeholder="Enter room name"
-                value={roomName}
-                onChange={handleRoomNameChange}
-                className={classes.input}
-              />
-              <div className={classes.formRadio}>
-                <label>Play Bet To: </label>
-                <input
-                  type="radio"
-                  name="team"
-                  value={pairScoreGlobal.homeTeam.name}
-                  onChange={handleTeam}
+              <div className={classes.teams}>
+                <div className={classes.teamview}>
+                  <TeamView teamData={pairScoreGlobal.homeTeam} />
+                </div>
+                <Result
+                  className={classes.result}
+                  homeTeamScore={pairScoreGlobal.homeTeam.score}
+                  awayTeamScore={pairScoreGlobal.awayTeam.score}
                 />
-                {pairScoreGlobal.homeTeam.name}
-                <input
-                  type="radio"
-                  name="team"
-                  value={pairScoreGlobal.awayTeam.name}
-                  onChange={handleTeam}
-                />
-                {pairScoreGlobal.awayTeam.name}
+                <GameStatus status={statusGlobal} />
+                <div className={classes.teamview}>
+                  <TeamView teamData={pairScoreGlobal.awayTeam} />
+                </div>
               </div>
-              <label> Bet coin: </label>
-              <input type="number" name="coin" onChange={handleCoin}></input>
-              <button className={classes.button} onClick={formControl}>
-                Create Bet
-              </button>
-            </form>
-            <button
-              className={classes.button}
-              onClick={() => setShowRooms(true)}
-            >
-              Rooms
-            </button>
-            <button className={classes.button} onClick={() => setPageInd(0)}>
-              Back
-            </button>
-          </main>
-        </div>
-      )}
-      {showRooms === true && (
-        <div className={classes.roomsPage}>
-          <main className={classes.mainPart}>
-            <button
-              className={classes.button}
-              onClick={() => setShowRooms(false)}
-              style={{ backgroundColor: "red" }}
-            >
-              Back
-            </button>
-            <button
-              className={classes.button}
-              onClick={async () => await fetchRooms()}
-            >
-              Reload Rooms
-            </button>
-            <div className={classes.teamButtons}>
+              <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
+              <form className={classes.formContainer}>
+                <input
+                  type="text"
+                  placeholder="Enter room name"
+                  value={roomName}
+                  onChange={handleRoomNameChange}
+                  className={classes.input}
+                />
+                <div className={classes.formRadio}>
+                  <label>Play Bet To: </label>
+                  <input
+                    type="radio"
+                    name="team"
+                    value={pairScoreGlobal.homeTeam.name}
+                    onChange={handleTeam}
+                  />
+                  {pairScoreGlobal.homeTeam.name}
+                  <input
+                    type="radio"
+                    name="team"
+                    value={pairScoreGlobal.awayTeam.name}
+                    onChange={handleTeam}
+                  />
+                  {pairScoreGlobal.awayTeam.name}
+                </div>
+                <label> Bet coin: </label>
+                <input type="number" name="coin" onChange={handleCoin}></input>
+                <button className={classes.button} onClick={formControl}>
+                  Create Bet
+                </button>
+              </form>
               <button
-                className={
-                  selectedTeam === pairScoreGlobal.homeTeam.name
-                    ? classes.teama
-                    : classes.teamb
-                }
-                onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
+                className={classes.button}
+                onClick={() => setShowRooms(true)}
               >
-                Bet to {pairScoreGlobal.homeTeam.name}
+                Rooms
+              </button>
+              <button className={classes.button} onClick={() => setPageInd(0)}>
+                Back
+              </button>
+            </main>
+          </div>
+        )}
+        {!loading && showRooms === true && (
+          <div className={classes.roomsPage}>
+            <main className={classes.mainPart}>
+              <button
+                className={classes.button}
+                onClick={() => setShowRooms(false)}
+                style={{ backgroundColor: "red" }}
+              >
+                Back
               </button>
               <button
-                className={
-                  selectedTeam === pairScoreGlobal.awayTeam.name
-                    ? classes.teama
-                    : classes.teamb
-                }
-                onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
+                className={classes.button}
+                onClick={async () => await fetchRooms()}
               >
-                Bet to {pairScoreGlobal.awayTeam.name}
+                Reload Rooms
               </button>
-            </div>
-            <div className={classes.rooms}>
-              {rooms?.map((room) => (
-                <div
-                  className={`${classes.room} ${
-                    selectedTeam === room.availableTeam ? "" : classes.hidden
-                  }`}
-                  key={room.id}
+              <div className={classes.teamButtons}>
+                <button
+                  className={
+                    selectedTeam === pairScoreGlobal.homeTeam.name
+                      ? classes.teama
+                      : classes.teamb
+                  }
+                  onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
                 >
-                  <h3>{room.name.toUpperCase()}</h3>
-                  <p>Creator: {room.creatorName}</p>
-                  <p style={{ color: "green" }}>
-                    Available Team: {room.availableTeam}
-                  </p>
-                  <o style={{ color: "red" }}>
-                    Against Team: {room.creatorsTeam}
-                  </o>
-                  <p style={{ color: "yellow" }}>
-                    Bet amount: {room.betAmount}🫘
-                  </p>
-                  {room.participantName !== undefined &&
-                    room.participantName !== "" &&
-                    room.participantName !== null && (
-                      <p>Participant: {room.participantName}</p>
-                    )}
-                  <button
-                    className={classes.button}
-                    onClick={async () => {
-                      if (
-                        room.participantName === undefined ||
-                        room.participantName === "" ||
-                        room.participantName === null
-                      ) {
-                        if (checkBalanceIsEnough(room.betAmount)) {
-                          await addParticipantToRoom(
-                            room.id,
-                            auth.currentUser.uid
-                          );
-                          await fetchRooms();
-                        }
-                      } else {
-                        alert("This room is full");
-                      }
-                    }}
-                    style={{
-                      backgroundColor:
-                        room.participantName === undefined ||
-                        room.participantName === "" ||
-                        room.participantName === null
-                          ? "green"
-                          : "red",
-                    }}
+                  Bet to {pairScoreGlobal.homeTeam.name}
+                </button>
+                <button
+                  className={
+                    selectedTeam === pairScoreGlobal.awayTeam.name
+                      ? classes.teama
+                      : classes.teamb
+                  }
+                  onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
+                >
+                  Bet to {pairScoreGlobal.awayTeam.name}
+                </button>
+              </div>
+              <div className={classes.rooms}>
+                {rooms?.map((room) => (
+                  <div
+                    className={`${classes.room} ${
+                      selectedTeam === room.availableTeam ? "" : classes.hidden
+                    }`}
+                    key={room.id}
                   >
-                    {room.participantName === undefined ||
-                    room.participantName === "" ||
-                    room.participantName === null
-                      ? "Join"
-                      : "Room Full"}
-                  </button>
-                  {
-                    !isMatchPast(
-                      room.gameTime,
-                      room.Startdate
-                    ) && (
+                    <h3>{room.name.toUpperCase()}</h3>
+                    <p>Creator: {room.creatorName}</p>
+                    <p style={{ color: "green" }}>
+                      Available Team: {room.availableTeam}
+                    </p>
+                    <p style={{ color: "red" }}>
+                      Against Team: {room.creatorsTeam}
+                    </p>
+                    <p style={{ color: "yellow" }}>
+                      Bet amount: {room.betAmount}🫘
+                    </p>
+                    {room.participantName !== undefined &&
+                      room.participantName !== "" &&
+                      room.participantName !== null && (
+                        <p>Participant: {room.participantName}</p>
+                      )}
                     <button
                       className={classes.button}
                       onClick={async () => {
-                        await leaveRoom(
-                          room.id,
-                          auth.currentUser.uid,
-                          room.betAmount,
-                          room.Startdate,
-                          room.gameTime
-                        );
-                        await fetchRooms();
+                        if (
+                          room.participantName === undefined ||
+                          room.participantName === "" ||
+                          room.participantName === null
+                        ) {
+                          if (await checkBalanceIsEnough(room.betAmount)) {
+                            await addParticipantToRoom(
+                              room.id,
+                              auth.currentUser.uid
+                            );
+                            await fetchRooms();
+                          }
+                        } else {
+                          alert("This room is full");
+                        }
                       }}
-                      style={{ backgroundColor: "red" }}
+                      style={{
+                        backgroundColor:
+                          room.participantName === undefined ||
+                          room.participantName === "" ||
+                          room.participantName === null
+                            ? "green"
+                            : "red",
+                      }}
                     >
-                      Leave
+                      {room.participantName === undefined ||
+                      room.participantName === "" ||
+                      room.participantName === null
+                        ? "Join"
+                        : "Room Full"}
                     </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </main>
-        </div>
-      )}
+                    {!isMatchPast(room.gameTime, room.Startdate) && (
+                      <button
+                        className={classes.button}
+                        onClick={async () => {
+                          setLoading(true);
+                          await leaveRoom(
+                            room.id,
+                            auth.currentUser.uid,
+                            room.betAmount,
+                            room.Startdate,
+                            room.gameTime
+                          );
+                          await fetchRooms();
+                          setLoading(false);
+                        }}
+                        style={{ backgroundColor: "red" }}
+                      >
+                        Leave
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </main>
+          </div>
+        )}
     </>
   );
 }
