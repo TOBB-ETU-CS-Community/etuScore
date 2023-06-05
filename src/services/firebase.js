@@ -110,15 +110,15 @@ const resendVerificationEmail = async (email, password) => {
   try {
     const res = await signInWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    if (user?.email === email && !user?.emailVerified) {
+    if (user?.email === email ) {
       sendEmailVerification(auth?.currentUser);
 
       signOut(auth);
 
       alert("Email verification resent!");
-    } else {
+    } else if(!user?.emailVerified) {
       await signOut(auth);
-      alert("Email already verified!");
+      alert("Emails are not matching!");
     }
   } catch (err) {
     console.error(err);
