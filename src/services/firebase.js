@@ -118,7 +118,9 @@ const resendVerificationEmail = async (email, password) => {
       alert("Email verification resent!");
     } else if(user?.emailVerified) {
       await signOut(auth);
-      alert("Emails are not matching!");
+      alert("Email already verified!");
+    }else {
+      alert("Emails do not match!");
     }
   } catch (err) {
     console.error(err);
