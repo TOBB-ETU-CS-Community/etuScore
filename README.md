@@ -18,7 +18,7 @@
 <h2>Getting Started</h2>
 <p>To get started with this project:</p>
 <ol>
-  <li>Clone the repository: <code>git clone https://github.com/your-username/project.git</code></li>
+  <li>Clone the repository: <code>git clone https://github.com/TOBB-ETU-CS-Community/etuScore.git</code></li>
   <li>Install the dependencies: <code>npm install</code></li>
   <li>Configure the Firebase credentials in the project</li>
   <li>Run the development server: <code>npm start</code></li>
