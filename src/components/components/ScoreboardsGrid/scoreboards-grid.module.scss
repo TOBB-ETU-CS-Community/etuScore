@@ -36,6 +36,8 @@ h3 {
   text-align: center;
   margin: 1rem;
   cursor:pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .date{
