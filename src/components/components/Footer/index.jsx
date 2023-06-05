@@ -8,7 +8,7 @@ const Footer = () => {
         <ul>
           <li className={classes.footerLinks}>
             <a
-                href="https://tr.linkedin.com/company/tobb-etu-computer-science-community?original_referer=https%3A%2F%2Fwww.google.com%2F"
+                href="https://www.linkedin.com/company/tobb-etu-computer-science-community/"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-cy="linkedinLink"
@@ -17,7 +17,7 @@ const Footer = () => {
             </a>{" "}
             &bull;{" "}
             <a
-                href="https://github.com/berykay/etuScore"
+                href="https://github.com/TOBB-ETU-CS-Community/etuScore"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-cy="githubLink"
