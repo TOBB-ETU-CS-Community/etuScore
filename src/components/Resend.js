@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, logInWithEmailAndPassword } from "../services/firebase";
-import "./Login.css";
+import { useNavigate, Link } from "react-router-dom";
+import { auth, resendVerificationEmail } from "../services/firebase";
+import "./Reset.css";
 
-
-function Login() {
+function Resend() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [user, loading, error] = useAuthState(auth);
+  
   const navigate = useNavigate();
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleResendVerification = async () => {
+    await resendVerificationEmail(email,password);
+  };
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
   useEffect(() => {
     if (loading) {
-      
+      // Show a loading screen or spinner while checking authentication state
       return;
     }
     if (user) {
@@ -21,24 +31,12 @@ function Login() {
     }
   }, [user, loading, navigate]);
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleLogin = () => {
-    logInWithEmailAndPassword(email, password);
-  };
-
   return (
-    <div className="login">
-      <div className="login__container">
+    <div className="reset">
+      <div className="reset__container">
         <input
           type="text"
-          className="login__textBox"
+          className="reset__textBox"
           value={email}
           onChange={handleEmailChange}
           placeholder="E-mail Address"
@@ -50,21 +48,15 @@ function Login() {
           onChange={handlePasswordChange}
           placeholder="Password"
         />
-        <button className="login__btn" onClick={handleLogin}>
-          Login
+        <button className="reset__btn" onClick={handleResendVerification}>
+          Send verification
         </button>
         <div>
-          <Link to="/reset">Forgot Password</Link>
-        </div>
-        <div>
           Don't have an account? <Link to="/register">Register</Link> now.
-        </div>
-        <div>
-          Resend email verification <Link to="/resend">Resend</Link> now.
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Resend;

@@ -60,7 +60,7 @@ const logInWithEmailAndPassword = async (email, password) => {
     const q = query(collection(db, "users"), where("userId", "==", user.uid));
     const querySnapshot = await getDocs(q);
     const userData = querySnapshot.docs[0].data();
-    if(userData.isVerified === false) {
+    if (userData.isVerified === false) {
       await updateDoc(querySnapshot.docs[0].ref, {
         isVerified: true,
       });
@@ -105,17 +105,41 @@ const registerWithEmailAndPassword = async (name, email, password) => {
     alert(err.message);
   }
 };
+
+const resendVerificationEmail = async (email, password) => {
+  try {
+    const res = await signInWithEmailAndPassword(auth, email, password);
+    const user = res.user;
+    if (user?.email === email && user?.emailVerified) {
+      sendEmailVerification(auth?.currentUser);
+
+      signOut(auth);
+
+      alert("Email verification resent!");
+    } else {
+      await signOut(auth);
+      alert("Email already verified!");
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
 const addReffererBalance = async (reffererMail) => {
   const currentUser = auth.currentUser;
-  if(currentUser.isReffered) {
+  if (currentUser.isReffered) {
     alert("You have already been reffered");
     return false;
   }
   try {
-    const q = query(collection(db, "users"), where("email", "==", reffererMail));
+    const q = query(
+      collection(db, "users"),
+      where("email", "==", reffererMail)
+    );
     const querySnapshot = await getDocs(q);
     const userData = querySnapshot.docs[0].data();
-    
+
     const q2 = query(
       collection(db, "users"),
       where("userId", "==", userData.userId)
@@ -125,7 +149,6 @@ const addReffererBalance = async (reffererMail) => {
     await updateDoc(userDocRef, {
       balance: userData.balance + 5,
     });
-
 
     const success = await addCurrentUserBalance();
     return success && true;
@@ -847,4 +870,5 @@ export {
   returnBets,
   getMatchTimeById,
   addReffererBalance,
+  resendVerificationEmail,
 };
