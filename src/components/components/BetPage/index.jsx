@@ -135,139 +135,143 @@ function BetPage({
   return (
     <>
       {loading && <Loading />}
-        {!loading && showRooms === false && (
-          <div className={classes.betpage}>
-            <main>
-              <h2>Oyun: {pairScoreGlobal.gameId}</h2>
-              <h2>Match Day: {dayGlobal}</h2>
+      {!loading && showRooms === false && (
+        <div className={classes.betpage}>
+          <main>
+            <h2>Oyun: {pairScoreGlobal.gameId}</h2>
+            <h2>Match Day: {dayGlobal}</h2>
 
-              <div className={classes.teams}>
-                <div className={classes.teamview}>
-                  <TeamView teamData={pairScoreGlobal.homeTeam} />
-                </div>
-                <Result
-                  className={classes.result}
-                  homeTeamScore={pairScoreGlobal.homeTeam.score}
-                  awayTeamScore={pairScoreGlobal.awayTeam.score}
-                />
-                <GameStatus status={statusGlobal} />
-                <div className={classes.teamview}>
-                  <TeamView teamData={pairScoreGlobal.awayTeam} />
-                </div>
+            <div className={classes.teams}>
+              <div className={classes.teamview}>
+                <TeamView teamData={pairScoreGlobal.homeTeam} />
               </div>
-              <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
-              <form className={classes.formContainer}>
+              <Result
+                className={classes.result}
+                homeTeamScore={pairScoreGlobal.homeTeam.score}
+                awayTeamScore={pairScoreGlobal.awayTeam.score}
+              />
+              <GameStatus status={statusGlobal} />
+              <div className={classes.teamview}>
+                <TeamView teamData={pairScoreGlobal.awayTeam} />
+              </div>
+            </div>
+            <h3>Match Starts at: {pairScoreGlobal.gameTime}</h3>
+            <form className={classes.formContainer}>
+              <input
+                type="text"
+                placeholder="Enter room name"
+                value={roomName}
+                onChange={handleRoomNameChange}
+                className={classes.input}
+              />
+              <div className={classes.formRadio}>
+                <label>Play Bet To: </label>
                 <input
-                  type="text"
-                  placeholder="Enter room name"
-                  value={roomName}
-                  onChange={handleRoomNameChange}
-                  className={classes.input}
+                  type="radio"
+                  name="team"
+                  value={pairScoreGlobal.homeTeam.name}
+                  onChange={handleTeam}
                 />
-                <div className={classes.formRadio}>
-                  <label>Play Bet To: </label>
-                  <input
-                    type="radio"
-                    name="team"
-                    value={pairScoreGlobal.homeTeam.name}
-                    onChange={handleTeam}
-                  />
-                  {pairScoreGlobal.homeTeam.name}
-                  <input
-                    type="radio"
-                    name="team"
-                    value={pairScoreGlobal.awayTeam.name}
-                    onChange={handleTeam}
-                  />
-                  {pairScoreGlobal.awayTeam.name}
-                </div>
-                <label> Bet coin: </label>
-                <input type="number" name="coin" onChange={handleCoin}></input>
-                <button className={classes.button} onClick={formControl}>
-                  Create Bet
-                </button>
-              </form>
-              <button
-                className={classes.button}
-                onClick={() => setShowRooms(true)}
-              >
-                Rooms
-              </button>
-              <button className={classes.button} onClick={() => setPageInd(0)}>
-                Back
-              </button>
-            </main>
-          </div>
-        )}
-        {!loading && showRooms === true && (
-          <div className={classes.roomsPage}>
-            <main className={classes.mainPart}>
-              <button
-                className={classes.button}
-                onClick={() => setShowRooms(false)}
-                style={{ backgroundColor: "red" }}
-              >
-                Back
-              </button>
-              <button
-                className={classes.button}
-                onClick={async () => await fetchRooms()}
-              >
-                Reload Rooms
-              </button>
-              <div className={classes.teamButtons}>
-                <button
-                  className={
-                    selectedTeam === pairScoreGlobal.homeTeam.name
-                      ? classes.teama
-                      : classes.teamb
-                  }
-                  onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
-                >
-                  Bet to {pairScoreGlobal.homeTeam.name}
-                </button>
-                <button
-                  className={
-                    selectedTeam === pairScoreGlobal.awayTeam.name
-                      ? classes.teama
-                      : classes.teamb
-                  }
-                  onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
-                >
-                  Bet to {pairScoreGlobal.awayTeam.name}
-                </button>
+                {pairScoreGlobal.homeTeam.name}
+                <input
+                  type="radio"
+                  name="team"
+                  value={pairScoreGlobal.awayTeam.name}
+                  onChange={handleTeam}
+                />
+                {pairScoreGlobal.awayTeam.name}
               </div>
-              <div className={classes.rooms}>
-                {rooms?.map((room) => (
-                  <div
-                    className={`${classes.room} ${
-                      selectedTeam === room.availableTeam ? "" : classes.hidden
-                    }`}
-                    key={room.id}
-                  >
-                    <h3>{room.name.toUpperCase()}</h3>
-                    <p>Creator: {room.creatorName}</p>
-                    <p style={{ color: "green" }}>
-                      Available Team: {room.availableTeam}
-                    </p>
-                    <p style={{ color: "red" }}>
-                      Against Team: {room.creatorsTeam}
-                    </p>
-                    <p style={{ color: "yellow" }}>
-                      Bet amount: {room.betAmount}🫘
-                    </p>
-                    {room.participantName !== undefined &&
-                      room.participantName !== "" &&
-                      room.participantName !== null && (
-                        <p>Participant: {room.participantName}</p>
-                      )}
-                    <button
-                      className={classes.button}
-                      onClick={async () => {
+              <label> Bet coin: </label>
+              <input type="number" name="coin" onChange={handleCoin}></input>
+              <button className={classes.button} onClick={formControl}>
+                Create Bet
+              </button>
+            </form>
+            <button
+              className={classes.button}
+              onClick={() => setShowRooms(true)}
+            >
+              Rooms
+            </button>
+            <button className={classes.button} onClick={() => setPageInd(0)}>
+              Back
+            </button>
+          </main>
+        </div>
+      )}
+      {!loading && showRooms === true && (
+        <div className={classes.roomsPage}>
+          <main className={classes.mainPart}>
+            <button
+              className={classes.button}
+              onClick={() => setShowRooms(false)}
+              style={{ backgroundColor: "red" }}
+            >
+              Back
+            </button>
+            <button
+              className={classes.button}
+              onClick={async () => await fetchRooms()}
+            >
+              Reload Rooms
+            </button>
+            <div className={classes.teamButtons}>
+              <button
+                className={
+                  selectedTeam === pairScoreGlobal.homeTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
+                onClick={() => setSelectedTeam(pairScoreGlobal.homeTeam.name)}
+              >
+                Bet to {pairScoreGlobal.homeTeam.name}
+              </button>
+              <button
+                className={
+                  selectedTeam === pairScoreGlobal.awayTeam.name
+                    ? classes.teama
+                    : classes.teamb
+                }
+                onClick={() => setSelectedTeam(pairScoreGlobal.awayTeam.name)}
+              >
+                Bet to {pairScoreGlobal.awayTeam.name}
+              </button>
+            </div>
+            <div className={classes.rooms}>
+              {rooms?.map((room) => (
+                <div
+                  className={`${classes.room} ${
+                    selectedTeam === room.availableTeam ? "" : classes.hidden
+                  }`}
+                  key={room.id}
+                >
+                  <h3>{room.name.toUpperCase()}</h3>
+                  <p>Creator: {room.creatorName}</p>
+                  <p style={{ color: "green" }}>
+                    Available Team: {room.availableTeam}
+                  </p>
+                  <p style={{ color: "red" }}>
+                    Against Team: {room.creatorsTeam}
+                  </p>
+                  <p style={{ color: "yellow" }}>
+                    Bet amount: {room.betAmount}🫘
+                  </p>
+                  {room.participantName !== undefined &&
+                    room.participantName !== "" &&
+                    room.participantName !== null && (
+                      <p>Participant: {room.participantName}</p>
+                    )}
+                  <button
+                    className={classes.button}
+                    onClick={async () => {
+                      if (
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                      ) {
                         if (
-                          room.participantName === undefined ||
-                          room.participantName === "" ||
-                          room.participantName === null
+                          room?.creator !== auth?.currentUser?.uid &&
+                          room?.participant !== auth?.currentUser?.uid
                         ) {
                           if (await checkBalanceIsEnough(room.betAmount)) {
                             await addParticipantToRoom(
@@ -276,51 +280,54 @@ function BetPage({
                             );
                             await fetchRooms();
                           }
-                        } else {
-                          alert("This room is full");
+                        }else{
+                          alert("You are already in this room") ;
                         }
+                      } else {
+                        alert("This room is full");
+                      }
+                    }}
+                    style={{
+                      backgroundColor:
+                        room.participantName === undefined ||
+                        room.participantName === "" ||
+                        room.participantName === null
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {room.participantName === undefined ||
+                    room.participantName === "" ||
+                    room.participantName === null
+                      ? "Join"
+                      : "Room Full"}
+                  </button>
+                  {!isMatchPast(room.gameTime, room.Startdate) && (
+                    <button
+                      className={classes.button}
+                      onClick={async () => {
+                        setLoading(true);
+                        await leaveRoom(
+                          room.id,
+                          auth.currentUser.uid,
+                          room.betAmount,
+                          room.Startdate,
+                          room.gameTime
+                        );
+                        await fetchRooms();
+                        setLoading(false);
                       }}
-                      style={{
-                        backgroundColor:
-                          room.participantName === undefined ||
-                          room.participantName === "" ||
-                          room.participantName === null
-                            ? "green"
-                            : "red",
-                      }}
+                      style={{ backgroundColor: "red" }}
                     >
-                      {room.participantName === undefined ||
-                      room.participantName === "" ||
-                      room.participantName === null
-                        ? "Join"
-                        : "Room Full"}
+                      Leave
                     </button>
-                    {!isMatchPast(room.gameTime, room.Startdate) && (
-                      <button
-                        className={classes.button}
-                        onClick={async () => {
-                          setLoading(true);
-                          await leaveRoom(
-                            room.id,
-                            auth.currentUser.uid,
-                            room.betAmount,
-                            room.Startdate,
-                            room.gameTime
-                          );
-                          await fetchRooms();
-                          setLoading(false);
-                        }}
-                        style={{ backgroundColor: "red" }}
-                      >
-                        Leave
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </main>
-          </div>
-        )}
+                  )}
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
+      )}
     </>
   );
 }
