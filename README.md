@@ -4,6 +4,12 @@
 
 <p>This project aims to make volleyball matches even more exciting by introducing a betting system for our university. It offers a free and fun experience for registered students who can participate by predicting match results. Registered users earn coffee beans, and they can earn extra beans by referring others. The betting system requires at least two users to join a match for a bet to be valid. The winning user receives the entire accumulated balance on the table.</p>
 
+ <h2>Team Members</h2>
+<ul>
+  <li> <a href="https://github.com/berykay">Berkay YILDIZ</a></li>
+  <li> <a href="https://github.com/hpekkan">Hüseyin PEKKAN</a></li>
+ 
+</ul>
 <h2>Features</h2>
 <ul>
   <li>Registration with "@etu.edu.tr" email address</li>
@@ -18,7 +24,7 @@
 <h2>Getting Started</h2>
 <p>To get started with this project:</p>
 <ol>
-  <li>Clone the repository: <code>git clone https://github.com/your-username/project.git</code></li>
+  <li>Clone the repository: <code>git clone https://github.com/TOBB-ETU-CS-Community/etuScore.git</code></li>
   <li>Install the dependencies: <code>npm install</code></li>
   <li>Configure the Firebase credentials in the project</li>
   <li>Run the development server: <code>npm start</code></li>
