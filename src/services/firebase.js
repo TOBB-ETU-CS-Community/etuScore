@@ -586,6 +586,8 @@ const returnBets = async () => {
     //for every room find the creator and participant
     for (let i = 0; i < rooms.length; i++) {
       const room = rooms[i];
+      if(room.gameFinished) continue;
+      if(!isMatchPast(room.gameTime, room.startDate)) continue;
       const roomRef = doc(db, "rooms", room.id);
       const creator = room.creator;
       const creatorsTeam = room.creatorsTeam;
