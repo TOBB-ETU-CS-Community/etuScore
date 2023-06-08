@@ -590,10 +590,16 @@ const returnBets = async () => {
       const creator = room.creator;
       const creatorsTeam = room.creatorsTeam;
       const participant = room.participant;
+      const betAmount = room.betAmount;
       if (!participant) {
+        const creatorUser = await getUserById(creator);
+        const creatorBalance = creatorUser.balance;
+        const newCreatorBalance = creatorBalance + betAmount;
+        await updateDoc(creatorUser.ref, {
+          balance: newCreatorBalance,
+        });
         continue;
       }
-      const betAmount = room.betAmount;
       const matchId = room.matchId;
       const response = await getMatchScoreById(matchId);
       //if match score is 2-0 or 2-1
