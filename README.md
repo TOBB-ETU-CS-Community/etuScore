@@ -83,7 +83,6 @@ https://github.com/hpekkan/etuScore/assets/75019129/e4bac561-11ab-41eb-8571-690e
 <p>We take security seriously. If you discover any security vulnerabilities or breaches, please reach out to Hüseyin Pekkan at <a href="mailto:hpekkan@etu.edu.tr">hpekkan@etu.edu.tr</a> or Berkay Yıldız at <a href="mailto:Berkay.yildiz@etu.edu.tr">Berkay.yildiz@etu.edu.tr</a>. Please avoid disclosing the vulnerability publicly until we have had a chance to address it.</p>
 
 # Firebase Structure
-Certainly! Here's the Firebase structure with all the variable types specified as you've provided:
 
 ## Collection: users
 
