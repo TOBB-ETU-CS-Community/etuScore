@@ -83,67 +83,64 @@ https://github.com/hpekkan/etuScore/assets/75019129/e4bac561-11ab-41eb-8571-690e
 <p>We take security seriously. If you discover any security vulnerabilities or breaches, please reach out to Hüseyin Pekkan at <a href="mailto:hpekkan@etu.edu.tr">hpekkan@etu.edu.tr</a> or Berkay Yıldız at <a href="mailto:Berkay.yildiz@etu.edu.tr">Berkay.yildiz@etu.edu.tr</a>. Please avoid disclosing the vulnerability publicly until we have had a chance to address it.</p>
 
 # Firebase Structure
-<h2>Collection: users</h2>
 
-<p>Fields:</p>
-<ul>
-  <li><code>balance</code>: number (integer)</li>
-  <li><code>bets</code>: array of strings (room_ids)</li>
-  <li><code>isAdmin</code>: boolean</li>
-  <li><code>isReferred</code>: boolean</li>
-  <li><code>isVerified</code>: boolean</li>
-  <li><code>userId</code>: string</li>
-  <li><code>username</code>: string</li>
-</ul>
+## Collection: users
 
-<h2>Collection: rooms</h2>
+| Field         | Type                   |
+|---------------|------------------------|
+| balance       | number (integer)       |
+| bets          | array of strings       |
+| isAdmin       | boolean                |
+| isReferred    | boolean                |
+| isVerified    | boolean                |
+| userId        | string                 |
+| username      | string                 |
 
-<p>Fields:</p>
-<ul>
-  <li><code>roomId</code>: string</li>
-  <li><code>startDate</code>: string (in the format "dd.mm.yy")</li>
-  <li><code>availableTeam</code>: string</li>
-  <li><code>betAmount</code>: number</li>
-  <li><code>createdAt</code>: string (in ISO 8601 format)</li>
-  <li><code>creator</code>: string</li>
-  <li><code>creatorName</code>: string</li>
-  <li><code>creatorTeam</code>: string</li>
-  <li><code>gameFinished</code>: boolean</li>
-  <li><code>gameTime</code>: string (in the format "hh.mm")</li>
-  <li><code>matchId</code>: string</li>
-  <li><code>name</code>: string</li>
-  <li><code>participant</code>: string</li>
-  <li><code>participantName</code>: string</li>
-</ul>
+## Collection: rooms
 
-<h2>Collection: groups</h2>
+| Field          | Type                 |
+|----------------|----------------------|
+| roomId         | string               |
+| startDate      | string               |
+| availableTeam  | string               |
+| betAmount      | number               |
+| createdAt      | string (ISO 8601)    |
+| creator        | string               |
+| creatorName    | string               |
+| creatorTeam    | string               |
+| gameFinished   | boolean              |
+| gameTime       | string               |
+| matchId        | string               |
+| name           | string               |
+| participant    | string               |
+| participantName| string               |
 
-<p>Fields:</p>
-<ul>
-  <li><code>createdAt</code>: string (in the format "MMMM DD, YYYY at hh:mm:ss A Z")</li>
-  <li><code>data</code>: number</li>
-  <li><code>grup1</code>: array of strings (size 6)</li>
-  <li><code>grup2</code>: array of strings (size 6)</li>
-  <li><code>grup3</code>: array of strings (size 6)</li>
-  <li><code>grup4</code>: array of strings (size 6)</li>
-  <li><code>grup5</code>: array of strings (size 6)</li>
-</ul>
+## Collection: groups
 
-<h2>Collection: matches</h2>
+| Field      | Type                      |
+|------------|---------------------------|
+| createdAt  | string (formatted date)   |
+| data       | number                    |
+| grup1      | array of strings (size 6) |
+| grup2      | array of strings (size 6) |
+| grup3      | array of strings (size 6) |
+| grup4      | array of strings (size 6) |
+| grup5      | array of strings (size 6) |
 
-<p>Fields:</p>
-<ul>
-  <li><code>data</code>: array of objects</li>
-  <ul>
-    <li><code>matchNumber</code>: string</li>
-    <li><code>date</code>: string (in the format "DD.MM.YY")</li>
-    <li><code>time</code>: string (in the format "hh.mm")</li>
-    <li><code>group</code>: string</li>
-    <li><code>team1</code>: string</li>
-    <li><code>team2</code>: string</li>
-    <li><code>result</code>: string (in the format "X-Y" or "X-Y(h)", where X and Y are integers representing the number of goals scored by each team)</li>
-  </ul>
-</ul>
+## Collection: matches
+
+| Field       | Type                |
+|-------------|---------------------|
+| data        | array of objects    |
+| (match)     |                     |
+| matchNumber | string              |
+| date        | string              |
+| time        | string              |
+| group       | string              |
+| team1       | string              |
+| team2       | string              |
+| result      | string              |
+
 
 
 </div>
