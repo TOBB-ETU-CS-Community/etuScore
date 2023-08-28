@@ -21,6 +21,38 @@
   <li>Leaderboard with rewards for top three individuals</li>
 </ul>
 
+# Web App Showcase
+
+
+<h2>Match Calendar</h2>
+
+https://github.com/hpekkan/etuScore/assets/75019129/e4bac561-11ab-41eb-8571-690e950f8178
+
+## <p align="center"> If above video is broken <a hef="https://youtu.be/8f1vHFwHP60"> https://youtu.be/8f1vHFwHP60</a> </p>
+
+<h2>Match Page</h2>
+
+![image1](https://github.com/hpekkan/etuScore/assets/75019129/f28eaa17-d2ab-4952-a626-94ad3fce75de)
+
+
+<h2>LeaderBoard</h2>
+
+![image4](https://github.com/hpekkan/etuScore/assets/75019129/ca7e8577-7e06-4872-8ef0-cc09fba24e56)
+
+<h2>Groups</h2>
+
+![image3](https://github.com/hpekkan/etuScore/assets/75019129/9ce16494-1db5-4fd2-a1c4-e7b17728d316)
+
+<h2>Profile Page</h2>
+
+![image2](https://github.com/hpekkan/etuScore/assets/75019129/1d6dd389-303c-4046-82ce-0b6603e50c31)
+
+<h2>Firebase</h2>
+
+![image0](https://github.com/hpekkan/etuScore/assets/75019129/67ab92c9-388d-4695-b0d8-820248668baa)
+
+
+
 <h2>Getting Started</h2>
 <p>To get started with this project:</p>
 <ol>
