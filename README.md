@@ -132,7 +132,6 @@ https://github.com/hpekkan/etuScore/assets/75019129/e4bac561-11ab-41eb-8571-690e
 | Field       | Type                |
 |-------------|---------------------|
 | data        | array of objects    |
-| (match)     |                     |
 | matchNumber | string              |
 | date        | string              |
 | time        | string              |
